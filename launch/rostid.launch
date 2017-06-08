@@ -1,0 +1,11 @@
+<launch>
+	<!-- Arguments declaration -->
+	<arg name="pipes"   default="[/bus, /dev]"/>
+
+	<group ns="rostid">
+		<rosparam param="pipes"  subst_value="True">$(arg pipes)</rosparam>
+
+		<node pkg="cnbiros_bci" type="rostid" name="rostid" output="screen" respawn="true" />
+	</group>
+
+</launch>
