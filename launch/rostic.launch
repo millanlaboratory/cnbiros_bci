@@ -1,0 +1,13 @@
+<launch>
+	<!-- Arguments declaration -->
+	<arg name="pipes2ros"  default=""/>
+	<arg name="pipes2cnbi" default=""/>
+
+	<group ns="rostic">
+		<rosparam param="pipes2ros"  subst_value="True">$(arg pipes2ros)</rosparam>
+		<rosparam param="pipes2cnbi"  subst_value="True">$(arg pipes2cnbi)</rosparam>
+
+		<node pkg="cnbiros_bci" type="rostic" name="rostic" output="screen" />
+	</group>
+
+</launch>

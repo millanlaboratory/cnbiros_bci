@@ -1,5 +1,5 @@
-#ifndef CNBIROS_BCI_CLTOBIID_HPP
-#define CNBIROS_BCI_CLTOBIID_HPP
+#ifndef CNBIROS_BCI_TIDCLIENTSET_HPP
+#define CNBIROS_BCI_TIDCLIENTSET_HPP
 
 #include <unordered_map>
 #include <cnbiloop/ClTobiId.hpp>

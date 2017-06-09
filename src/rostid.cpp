@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 	}
 
 	if(exit == false) {
-		ROS_INFO("Listening to CNBI pipe and ROS topics");
+		ROS_INFO("Listening to CNBI TiD pipes and ROS topics");
 		tid.Run();
 	}
 

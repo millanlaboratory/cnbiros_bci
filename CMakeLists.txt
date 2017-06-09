@@ -21,6 +21,9 @@ include_directories(${catkin_INCLUDE_DIRS}
 add_message_files(
 	FILES
 	TidMessage.msg
+	TicClass.msg
+	TicClassifier.msg
+	TicMessage.msg
 )
 
 generate_messages(
@@ -36,10 +39,10 @@ catkin_package(
 	${TOBIID_INCLUDE_DIRS}
 	${TOBIIC_INCLUDE_DIRS}
   LIBRARIES 
-  ${CNBILOOP_LIBRARIES}
-  ${TOBICORE_LIBRARIES}
-  ${TOBIID_LIBRARIES}
-  ${TOBIIC_LIBRARIES}
+    ${CNBILOOP_LIBRARIES}
+    ${TOBICORE_LIBRARIES}
+    ${TOBIID_LIBRARIES}
+    ${TOBIIC_LIBRARIES}
 	${PROJECT_NAME}
   CATKIN_DEPENDS
   	roscpp
@@ -56,6 +59,9 @@ add_library(cnbiros_bci
 			src/TidClientSet.cpp
 			src/TidInterface.cpp
 			src/TidTools.cpp
+			src/TicClientSet.cpp
+			src/TicInterface.cpp
+			src/TicTools.cpp
 			)
 		target_link_libraries(cnbiros_bci ${catkin_LIBRARIES} 
 										  ${CNBILOOP_LIBRARIES} 
@@ -66,6 +72,9 @@ add_library(cnbiros_bci
 add_executable(rostid src/rostid.cpp)
 target_link_libraries(rostid cnbiros_bci)
 
+add_executable(rostic src/rostic.cpp)
+target_link_libraries(rostic cnbiros_bci)
+
 add_executable(example_cnbiloop examples/example_cnbiloop.cpp)
 target_link_libraries(example_cnbiloop cnbiros_bci)
 
@@ -74,4 +83,7 @@ target_link_libraries(example_tidclset cnbiros_bci)
 
 add_executable(example_tid examples/example_tid.cpp)
 target_link_libraries(example_tid cnbiros_bci)
+
+add_executable(example_tic examples/example_tic.cpp)
+target_link_libraries(example_tic cnbiros_bci)
 
