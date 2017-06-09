@@ -75,6 +75,9 @@ target_link_libraries(rostid cnbiros_bci)
 add_executable(rostic src/rostic.cpp)
 target_link_libraries(rostic cnbiros_bci)
 
+add_executable(ros_ticsender src/ros_ticsender.cpp)
+target_link_libraries(ros_ticsender cnbiros_bci)
+
 add_executable(example_cnbiloop examples/example_cnbiloop.cpp)
 target_link_libraries(example_cnbiloop cnbiros_bci)
 

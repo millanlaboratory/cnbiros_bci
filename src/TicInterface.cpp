@@ -110,6 +110,7 @@ void TicInterface::callback_ros2tic(const cnbiros_bci::TicMessage& rosIcm) {
 	// Check if the corresponding ClTobiIc exists and is attached
 	if(this->ticclset_->Get(rosIcm.pipe, ptic)) {
 		if(ptic->IsAttached()) {
+			ROS_INFO_ONCE("First message streamed from ROS to %s", rosIcm.pipe.c_str());
 			ptic->SetMessage(&cnbiIcs);
 			retcod = true;
 		} else {
@@ -118,7 +119,7 @@ void TicInterface::callback_ros2tic(const cnbiros_bci::TicMessage& rosIcm) {
 	}
 	
 	if(retcod == false) {
-		ROS_ERROR("Message received from ROS to CNBILoop. " 
+		ROS_ERROR_THROTTLE(10, "Message received from ROS to CNBILoop. " 
 			      "However, no connection to %s has been found.", rosIcm.pipe.c_str());	
 	}
 
