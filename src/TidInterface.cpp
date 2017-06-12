@@ -31,10 +31,10 @@ bool TidInterface::Attach(const std::string& pipe) {
 	this->tidclset_->Add(pipe, ClTobiId::SetGet);
 
 	// Create and advertise the ROS topic
-	this->pubset_->Add<cnbiros_bci::TidMessage>(CNBIROS_BCI_CNBI2ROS);
+	this->pubset_->Add<cnbiros_bci::TidMessage>(CNBIROS_BCI_TID_CNBI2ROS);
 	
 	// Create and subscribe to ROS topic
-	this->subset_->Add(CNBIROS_BCI_ROS2CNBI, &TidInterface::callback_ros2tid, this);
+	this->subset_->Add(CNBIROS_BCI_TID_ROS2CNBI, &TidInterface::callback_ros2tid, this);
 	
 	// Retrieve pointer to the ClTobiId added and try to attach
 	if(this->tidclset_->Get(pipe, ptid))
@@ -61,7 +61,7 @@ void TidInterface::Run(void) {
 			
 			if(it->second->GetMessage(&cnbiIds) == true) {
 				rosIdm = tidtool.GetMessage(cnbiIdm, it->first);
-				this->pubset_->Publish(CNBIROS_BCI_CNBI2ROS, rosIdm);
+				this->pubset_->Publish(CNBIROS_BCI_TID_CNBI2ROS, rosIdm);
 			}
 		}
 	

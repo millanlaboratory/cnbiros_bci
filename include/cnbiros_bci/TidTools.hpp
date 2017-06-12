@@ -3,6 +3,7 @@
 
 #include <tobiid/IDMessage.hpp>
 #include "cnbiros_bci/TidMessage.h"
+#include "cnbiros_bci/Flags.hpp"
 
 namespace cnbiros {
 	namespace bci {

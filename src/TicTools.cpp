@@ -61,8 +61,8 @@ std::vector<cnbiros_bci::TicMessage> TicTools::GetMessage(const ICMessage& icmcn
 		
 		cnbiros_bci::TicMessage icmros;
 		icmros.header.stamp 	= ros::Time::now();
-		icmros.header.frame_id 	= "base_link";
-		icmros.version 			= "0.0.1";
+		icmros.header.frame_id 	= CNBIROS_BCI_TIC_FRAMEID;
+		icmros.version 			= CNBIROS_BCI_TIC_VERSION;
 		icmros.frame   			= icmcnbi.GetBlockIdx();
 		icmros.pipe    			= pipe;
 		icmros.classifier 		= rosclassifier;

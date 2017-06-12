@@ -46,8 +46,8 @@ int main(int argc, char** argv) {
 
 	rosicc.name 	   = "ros_ticsender";
 	rosicc.description = "ROS dummy classifier";
-	rosicc.vtype 	   = 1;
-	rosicc.ltype 	   = 1;
+	rosicc.vtype 	   = ICClassifier::ValueProb;
+	rosicc.ltype 	   = ICClassifier::LabelBiosig;
 	rosicc.classes.push_back(rosicl);
 
 	rosicm.header.stamp    = ros::Time::now();

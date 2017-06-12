@@ -29,7 +29,8 @@ cnbiros_bci::TidMessage TidTools::GetMessage(const IDMessage& idmcnbi, const std
 	cnbiros_bci::TidMessage idmros;
 
 	idmros.header.stamp 	= ros::Time::now();
-	idmros.header.frame_id  = "base_link";
+	idmros.header.frame_id  = CNBIROS_BCI_TID_FRAMEID;
+	idmros.version  		= CNBIROS_BCI_TID_VERSION;
 	idmros.family 			= idmcnbi.GetFamilyType();
 	idmros.description 		= idmcnbi.GetDescription();
 	idmros.event 			= idmcnbi.GetEvent();

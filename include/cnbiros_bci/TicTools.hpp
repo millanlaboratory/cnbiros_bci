@@ -7,6 +7,7 @@
 #include "cnbiros_bci/TicClass.h"
 #include "cnbiros_bci/TicClassifier.h"
 #include "cnbiros_bci/TicMessage.h"
+#include "cnbiros_bci/Flags.hpp"
 
 namespace cnbiros {
 	namespace bci {

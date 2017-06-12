@@ -7,13 +7,11 @@
 #include <cnbiros_core/SetSubscribers.hpp>
 #include <cnbiros_core/SetPublishers.hpp>
 
+#include "cnbiros_bci/Flags.hpp"
 #include "cnbiros_bci/TobiInterface.hpp"
 #include "cnbiros_bci/TicClientSet.hpp"
 #include "cnbiros_bci/TicTools.hpp"
 #include "cnbiros_bci/TicMessage.h"
-
-#define CNBIROS_BCI_TIC_CNBI2ROS 	"/tic_cnbi2ros"
-#define CNBIROS_BCI_TIC_ROS2CNBI 	"/tic_ros2cnbi"
 
 namespace cnbiros {
 	namespace bci {
