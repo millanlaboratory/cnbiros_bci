@@ -8,8 +8,8 @@ namespace cnbiros {
 
 TidInterface::TidInterface(ros::NodeHandle* node, CcAddress address) : TobiInterface(address) {
 	this->rosnode_  = node;
-	this->pubset_   = new core::SetPublishers(node);
-	this->subset_   = new core::SetSubscribers(node);
+	this->pubset_   = new core::Publishers(node);
+	this->subset_   = new core::Subscribers(node);
 	this->tidclset_ = new TidClientSet;
 };
 

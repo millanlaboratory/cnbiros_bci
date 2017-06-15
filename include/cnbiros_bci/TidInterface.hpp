@@ -4,8 +4,8 @@
 #include <ros/ros.h>
 #include <tobiid/IDMessage.hpp>
 
-#include <cnbiros_core/SetSubscribers.hpp>
-#include <cnbiros_core/SetPublishers.hpp>
+#include <cnbiros_core/Subscribers.hpp>
+#include <cnbiros_core/Publishers.hpp>
 
 #include "cnbiros_bci/Flags.hpp"
 #include "cnbiros_bci/TobiInterface.hpp"
@@ -32,8 +32,8 @@ class TidInterface : public TobiInterface {
 
 	private:
 		TidClientSet*			tidclset_;
-		core::SetPublishers* 	pubset_;
-		core::SetSubscribers* 	subset_;
+		core::Publishers* 	pubset_;
+		core::Subscribers* 	subset_;
 		ros::NodeHandle* 		rosnode_;
 
 
