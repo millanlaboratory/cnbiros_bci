@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 	while((opt = getopt(argc, argv, "n:e:h")) != -1) {
 		if(opt == 'n')
 			optpipe.assign(optarg);
-		if(opt == 'e')
+		else if(opt == 'e')
 			optevent.assign(optarg);
 		else {
 			usage();
