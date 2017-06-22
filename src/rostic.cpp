@@ -5,18 +5,21 @@
 int main(int argc, char** argv) {
 	
 	// ros initialization
-	ros::init(argc, argv, "rostic");
+	ros::init(argc, argv, "tic");
 	ros::NodeHandle node("~");
 	
 	// cnbiros initialization
 	cnbiros::bci::TicInterface tic(&node);
 	std::vector<std::string> pipes2ros;
 	std::vector<std::string> pipes2cnbi;
+	bool exit = false;
 
-	// get custom parameters (mandatory) 
-	node.getParam("/rostic/pipes2ros",  pipes2ros);
-	node.getParam("/rostic/pipes2cnbi", pipes2cnbi);
-	
+	if(ros::param::get("tic_pipes2ros", pipes2ros) == false &&
+	   ros::param::get("tic_pipes2cnbi", pipes2cnbi) == false) {
+		ROS_ERROR("No TiC pipes to cnbi/ros provided. Exit");
+		ros::shutdown();
+	}
+
 	// Connection to cnbi loop (blocking)
 	ROS_INFO("Try to connect to the cnbiloop...");
 	tic.Connect();
@@ -24,7 +27,10 @@ int main(int argc, char** argv) {
 	// Try to attach to the provided pipes2ros
 	for(auto it = pipes2ros.begin(); it != pipes2ros.end(); ++it) {
 		if(tic.Attach((*it), cnbiros::bci::TicInterface::ToRos) == false) {
-			ROS_ERROR("Cannot attach to %s (to Ros). Exit", (*it).c_str());
+			ROS_ERROR("Cannot attach to %s (to ROS). Exit", (*it).c_str());
+			exit = true;
+		} else {
+			ROS_INFO("Attached to TiC %s (to ROS)", (*it).c_str());
 		}
 	}
 	
@@ -32,14 +38,15 @@ int main(int argc, char** argv) {
 	for(auto it = pipes2cnbi.begin(); it != pipes2cnbi.end(); ++it) {
 		if(tic.Attach((*it), cnbiros::bci::TicInterface::ToCnbi) == false) {
 			ROS_ERROR("Cannot attach to %s (to CNBI). Exit", (*it).c_str());
+			exit = true;
+		} else {
+			ROS_INFO("Attached to TiC %s (to CNBI)", (*it).c_str());
 		}
 	}
 
-	if(pipes2ros.empty() == false || pipes2cnbi.empty() == false) {
+	if(exit == false) {
 		ROS_INFO("Listening to CNBI TiC pipes and ROS topics");
 		tic.Run();
-	} else {
-		ROS_ERROR("Not provided any pipes to ROS or to CNBI loop. Exit.");
 	}
 
 	return 0;

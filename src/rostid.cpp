@@ -5,16 +5,19 @@
 int main(int argc, char** argv) {
 
 	// ros initialization
-	ros::init(argc, argv, "rostid");
+	ros::init(argc, argv, "tid");
 	ros::NodeHandle node("~");
 	
 	// cnbiros initialization
 	cnbiros::bci::TidInterface tid(&node);
-	std::vector<std::string> pipes = {"/bus", "/dev"};
+	std::vector<std::string> pipes;
 	bool exit = false;
 
 	// get custom parameters (if exists, otherwise use the default)
-	node.getParam("/rostid/pipes", pipes);
+	if(ros::param::get("tid_pipes", pipes) == false) {
+		ROS_ERROR("No TiD pipes to cnbi/ros provided. Exit");
+		ros::shutdown();
+	}
 
 	// Connection to cnbi loop (blocking)
 	ROS_INFO("Try to connect to the cnbiloop...");
