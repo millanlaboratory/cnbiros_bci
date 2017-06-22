@@ -74,6 +74,28 @@ std::vector<cnbiros_bci::TicMessage> TicTools::GetMessage(const ICMessage& icmcn
 	
 }
 
+float TicTools::GetValue(const cnbiros_bci::TicMessage& msg, const std::string& name, const std::string& label) {
+
+	float value;
+	bool found = false;
+	if(msg.classifier.name.compare(name) != 0) {
+		// raise exception
+		ROS_ERROR("classifier not found");
+	} else {
+		for(auto itc = msg.classifier.classes.begin(); itc != msg.classifier.classes.end(); ++itc) {
+			if((*itc).label.compare(label) == 0) {
+				found = true;
+				value = (*itc).value;
+			}
+		}
+	}
+
+	if(found == false)
+		ROS_ERROR("class not found");
+
+	return value;
+}
+
 	}
 }
 
