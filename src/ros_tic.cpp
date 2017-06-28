@@ -20,10 +20,13 @@ int main(int argc, char** argv) {
 	}
 
 	// Getting pipes names
-	if(ros::param::get("tic_pipes2ros", pipes2ros) == false &&
-	   ros::param::get("tic_pipes2cnbi", pipes2cnbi) == false) {
-		ROS_ERROR("No TiC pipes to cnbi/ros provided. Exit");
+	if(ros::param::get("tic_pipes2ros", pipes2ros) == false) { 
+		ROS_ERROR("No TiC pipes to ros provided. Exit");
 		ros::shutdown();
+	}
+	   
+	if(ros::param::get("tic_pipes2cnbi", pipes2cnbi) == false) {
+		ROS_WARN("No TiC pipes to cnbi provided.");
 	}
 
 	// Instanciate TicInterface
