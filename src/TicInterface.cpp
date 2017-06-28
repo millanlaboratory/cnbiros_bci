@@ -13,10 +13,10 @@ TicInterface::TicInterface(ros::NodeHandle* node, CcAddress address) : TobiInter
 	this->ticclset_ = new TicClientSet;
 
 	// Create and advertise the ROS topic
-	this->pubset_->Add<cnbiros_bci::TicMessage>(this->rosnode_->getNamespace()+"/"+CNBIROS_BCI_TIC_CNBI2ROS);
+	this->pubset_->Add<cnbiros_bci::TicMessage>(CNBIROS_BCI_TIC_CNBI2ROS);
 	
 	// Create and subscribe to ROS topic
-	this->subset_->Add(this->rosnode_->getNamespace()+"/"+CNBIROS_BCI_TIC_ROS2CNBI, &TicInterface::callback_ros2tic, this);
+	this->subset_->Add(CNBIROS_BCI_TIC_ROS2CNBI, &TicInterface::callback_ros2tic, this);
 };
 
 TicInterface::~TicInterface(void) {
@@ -72,7 +72,7 @@ void TicInterface::Run(void) {
 						ROS_INFO_ONCE("First message received from %s", it->first.c_str());
 						rosIcmList = tictool.GetMessage(cnbiIcm, it->first);
 						for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
-							this->pubset_->Publish(this->rosnode_->getNamespace()+"/"+CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
+							this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
 						}
 
 					}
