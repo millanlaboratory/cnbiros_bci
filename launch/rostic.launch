@@ -1,8 +1,10 @@
 <launch>
 	<!-- Arguments declaration -->
+	<arg name="nameserver"     default=""/>
 	<arg name="tic_pipes2ros"  default="[/ctrl0]"/>
 	<arg name="tic_pipes2cnbi" default=""/>
 
+	<rosparam param="nameserver"  subst_value="True">$(arg  nameserver)</rosparam>
 	<rosparam param="tic_pipes2ros"  subst_value="True">$(arg  tic_pipes2ros)</rosparam>
 	<rosparam param="tic_pipes2cnbi"  subst_value="True">$(arg tic_pipes2cnbi)</rosparam>
 	<node pkg="cnbiros_bci" type="rostic" name="tic" output="screen" respawn="true" />
