@@ -5,6 +5,6 @@
 
 	<rosparam param="nameserver"  subst_value="True">$(arg  nameserver)</rosparam>
 	<rosparam param="tid_pipes"  subst_value="True">$(arg tid_pipes)</rosparam>
-	<node pkg="cnbiros_bci" type="ros_tid" name="tid" output="screen" respawn="true" />
+	<node pkg="cnbiros_bci" type="ros_tid" name="rostid" output="screen" respawn="true" />
 
 </launch>

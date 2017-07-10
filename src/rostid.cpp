@@ -5,8 +5,8 @@
 int main(int argc, char** argv) {
 
 	// ros initialization
-	ros::init(argc, argv, "tid");
-	ros::NodeHandle node("~");
+	ros::init(argc, argv, "rostid");
+	ros::NodeHandle node;
 	
 	// cnbiros initialization
 	cnbiros::bci::TidInterface* tid;

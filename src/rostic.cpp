@@ -4,8 +4,8 @@
 int main(int argc, char** argv) {
 	
 	// ros initialization
-	ros::init(argc, argv, "tic");
-	ros::NodeHandle node("~");
+	ros::init(argc, argv, "rostic");
+	ros::NodeHandle node;
 	
 	// cnbiros initialization
 	cnbiros::bci::TicInterface* tic;

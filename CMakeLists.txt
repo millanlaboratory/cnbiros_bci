@@ -69,17 +69,17 @@ add_library(cnbiros_bci
 										  ${TOBIID_LIBRARIES}
 										  ${TOBIIC_LIBRARIES})
 
-add_executable(ros_tid src/ros_tid.cpp)
-target_link_libraries(ros_tid cnbiros_bci)
+add_executable(rostid src/rostid.cpp)
+target_link_libraries(rostid cnbiros_bci)
 
-add_executable(ros_tic src/ros_tic.cpp)
-target_link_libraries(ros_tic cnbiros_bci)
+add_executable(rostic src/rostic.cpp)
+target_link_libraries(rostic cnbiros_bci)
 
-add_executable(ros_ticsender src/ros_ticsender.cpp)
-target_link_libraries(ros_ticsender cnbiros_bci)
+add_executable(rostic_sender src/rostic_sender.cpp)
+target_link_libraries(rostic_sender cnbiros_bci)
 
-add_executable(ros_tidsender src/ros_tidsender.cpp)
-target_link_libraries(ros_tidsender cnbiros_bci)
+add_executable(rostid_sender src/rostid_sender.cpp)
+target_link_libraries(rostid_sender cnbiros_bci)
 
 add_executable(example_cnbiloop examples/example_cnbiloop.cpp)
 target_link_libraries(example_cnbiloop cnbiros_bci)
