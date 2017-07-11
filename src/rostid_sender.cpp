@@ -5,7 +5,7 @@
 
 void usage(void) { 
 	printf("Usage: ros_tidsender [OPTION]...\n\n");
-	printf("It publishes on %s topic a TiD Message\n\n", CNBIROS_BCI_TIC_ROS2CNBI);
+	printf("It publishes on %s topic a TiD Message\n\n", CNBIROS_BCI_TID_ROS2CNBI);
 	printf("  -n       CNBI loop pipe name (/bus default)\n");
 	printf("  -e       CNBI GDF event (666 default)\n");
 	printf("  -h       display this help and exit\n");
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
 	// ros initialization
 	ros::init(argc, argv, "ros_tidsender");
-	ros::NodeHandle node("~");
+	ros::NodeHandle node;
 	ros::Rate r(10);
 
 	// Set ROS publisher

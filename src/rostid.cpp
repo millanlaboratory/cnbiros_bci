@@ -21,8 +21,7 @@ int main(int argc, char** argv) {
 	
 	// get custom parameters (if exists, otherwise use the default)
 	if(ros::param::get("tid_pipes", pipes) == false) {
-		ROS_ERROR("No TiD pipes to cnbi/ros provided. Exit");
-		ros::shutdown();
+		ROS_WARN("No Tid pipes to cnbi/ros provided. Use node services to add them.");
 	}
 
 	// Instanciate TicInterface
@@ -36,7 +35,6 @@ int main(int argc, char** argv) {
 	for(auto it = pipes.begin(); it != pipes.end(); ++it) {
 		if(tid->Attach((*it)) == false) {
 			ROS_ERROR("Cannot attach to %s. Exit", (*it).c_str());
-			exit = true;
 		}
 	}
 
@@ -44,8 +42,6 @@ int main(int argc, char** argv) {
 		ROS_INFO("Listening to CNBI TiD pipes and ROS topics");
 		tid->Run();
 	}
-
-	node.shutdown();
 
 	delete tid;
 

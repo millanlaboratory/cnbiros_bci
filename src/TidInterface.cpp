@@ -11,7 +11,14 @@ TidInterface::TidInterface(ros::NodeHandle* node, CcAddress address) : TobiInter
 	this->pubset_   = new core::Publishers(node);
 	this->subset_   = new core::Subscribers(node);
 	this->tidclset_ = new TidClientSet;
-};
+
+	// Add services
+	this->rossrv_set_tid_ = node->advertiseService(
+					  	     ros::this_node::getName() + "/set_tid", &TidInterface::on_set_tid_, this);
+	
+	this->rossrv_unset_tid_ = node->advertiseService(
+					  	      ros::this_node::getName() + "/unset_tid", &TidInterface::on_unset_tid_, this);
+}
 
 TidInterface::~TidInterface(void) {
 	delete this->pubset_;
@@ -46,6 +53,25 @@ bool TidInterface::Attach(const std::string& pipe) {
 	return retcod;
 }
 
+bool TidInterface::on_set_tid_(cnbiros_bci::SetTid::Request& req,
+								cnbiros_bci::SetTid::Response& res) {
+
+	ROS_INFO("Requested to attach to %s", req.pipe.c_str());
+	res.result = this->Attach(req.pipe);
+
+	return res.result;
+}
+
+bool TidInterface::on_unset_tid_(cnbiros_bci::UnSetTid::Request& req,
+								  cnbiros_bci::UnSetTid::Response& res) {
+
+	res.result = true;
+	ROS_INFO("Requested to detach from %s", req.pipe.c_str());
+	this->Detach(req.pipe);
+	ROS_INFO("Detached");
+
+	return true;
+}
 
 void TidInterface::Run(void) {
 
@@ -68,6 +94,8 @@ void TidInterface::Run(void) {
 		r.sleep();
 		ros::spinOnce();
 	}
+
+	printf("node not ok\n");
 }
 
 void TidInterface::Detach(const std::string& pipe) {
