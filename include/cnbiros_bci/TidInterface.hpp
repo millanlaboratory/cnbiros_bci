@@ -26,7 +26,7 @@ class TidInterface : public TobiInterface {
 		~TidInterface(void);
 
 		bool Attach(const std::string& pipe);
-		void Detach(const std::string& pipe);
+		bool Detach(const std::string& pipe);
 
 		void Run(void);
 

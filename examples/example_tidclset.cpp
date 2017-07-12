@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 	tidset.Add("/bus", ClTobiId::GetOnly);
 	tidset.Add("/dev", ClTobiId::SetOnly);
 
-	ClTobiId* id;
+	std::shared_ptr<ClTobiId> id;
 
 	while(node.ok() & cnbiloop.IsConnected()) {
 
