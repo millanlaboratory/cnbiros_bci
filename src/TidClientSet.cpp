@@ -12,9 +12,6 @@ TidClientSet::~TidClientSet(void) {
 };
 
 bool TidClientSet::Add(const std::string& pipe, unsigned int mode) {
-	//bool retcod = true;
-	//this->tidclset_[pipe] = new ClTobiId(mode);
-	//return retcod;
 	auto result = this->tidclset_.emplace(pipe, std::make_shared<ClTobiId>(mode));
 	return result.second;
 }
@@ -41,7 +38,6 @@ bool TidClientSet::Remove(const std::string& pipe) {
 	if( it != this->tidclset_.end() ) {
 		it->second->Detach();
 		this->tidclset_.erase(it);
-		//delete it->second;
 		retcod = true;
 	}
 
@@ -53,7 +49,6 @@ void TidClientSet::Erase(void) {
 	for(auto it=this->tidclset_.begin(); it!=tidclset_.end(); ++it) {
 		if(it->second->IsAttached())
 			it->second->Detach();
-		//delete it->second;
 	}
 
 	this->tidclset_.clear();
