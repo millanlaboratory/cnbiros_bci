@@ -26,7 +26,7 @@ class TicInterface : public TobiInterface {
 		~TicInterface(void);
 
 		bool Attach(const std::string& pipe, unsigned int mode);
-		void Detach(const std::string& pipe);
+		bool Detach(const std::string& pipe);
 
 		void Run(void);
 

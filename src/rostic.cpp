@@ -21,11 +21,11 @@ int main(int argc, char** argv) {
 
 	// Getting pipes names
 	if(ros::param::get("tic_pipes2ros", pipes2ros) == false) { 
-		ROS_WARN("No TiC pipes to ros provided. Exit");
+		ROS_WARN("No TiC pipes to ros provided. Use rostic services to add them.");
 	}
 	   
 	if(ros::param::get("tic_pipes2cnbi", pipes2cnbi) == false) {
-		ROS_WARN("No TiC pipes to cnbi provided.");
+		ROS_WARN("No TiC pipes to cnbi provided. Use rostic services to add them.");
 	}
 
 	// Instanciate TicInterface

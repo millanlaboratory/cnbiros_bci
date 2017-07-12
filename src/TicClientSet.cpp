@@ -12,13 +12,13 @@ TicClientSet::~TicClientSet(void) {
 };
 
 bool TicClientSet::Add(const std::string& pipe, unsigned int mode) {
-	bool retcod = true;
-	this->ticclset_[pipe] = new ClTobiIc(mode);
+	//this->ticclset_[pipe] = new ClTobiIc(mode);
+	//this->ticclset_.emplace(pipe, new ClTobiIc(mode));
 	// Edited by L.Tonin  <luca.tonin@epfl.ch> on 12/07/17 10:58:49
 	// Shared pointer version. Not used because the bug in the destructor of
 	// ClTobiIc
-	//this->ticclset_.emplace(pipe, std::make_shared<ClTobiIc>(mode));
-	return retcod;
+	auto result = this->ticclset_.emplace(pipe, std::make_shared<ClTobiIc>(mode));
+	return result.second;
 }
 
 TicClientMapIt TicClientSet::Find(const std::string& pipe) {
@@ -41,14 +41,22 @@ bool TicClientSet::Remove(const std::string& pipe) {
 	TicClientMapIt it = this->Find(pipe);
 
 	if( it != this->ticclset_.end() ) {
-		this->ticclset_.erase(it);
 		// Edited by L.Tonin  <luca.tonin@epfl.ch> on 12/07/17 10:56:54	
 		// Bug in ClTobiIc destructor. Lead to segmentation fault
-		delete it->second; 
+		it->second->Detach();
+		this->ticclset_.erase(it);
+		//delete it->second;
 		retcod = true;
 	}
 
 	return retcod;
+}
+
+void TicClientSet::Dump(void) {
+	printf("Dump TiCClientSet:\n");
+	for(auto it=this->ticclset_.begin(); it!=ticclset_.end(); ++it) {
+		printf("|- %s : %p\n", it->first.c_str(), it->second);
+	}
 }
 
 void TicClientSet::Erase(void) {
@@ -58,13 +66,13 @@ void TicClientSet::Erase(void) {
 			it->second->Detach();
 		// Edited by L.Tonin  <luca.tonin@epfl.ch> on 12/07/17 10:56:54	
 		// Bug in ClTobiIc destructor. Lead to segmentation fault
-		delete it->second; 
+		//delete it->second; 
 	}
 
 	this->ticclset_.clear();
 }
 
-bool TicClientSet::Get(const std::string& pipe, ClTobiIc*& tic) {
+bool TicClientSet::Get(const std::string& pipe, std::shared_ptr<ClTobiIc>& tic) {
 
 	bool retcod = false;
 

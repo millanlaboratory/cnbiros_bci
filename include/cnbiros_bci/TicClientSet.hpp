@@ -10,13 +10,13 @@ namespace cnbiros {
 
 // Edited by L.Tonin  <luca.tonin@epfl.ch> on 12/07/17 10:59:55
 // Shared pointer version. Not used because the bug in the ClTobiIc destructor
-//typedef std::unordered_map<std::string, std::shared_ptr<ClTobiIc>> TicClientMap;
-//typedef std::unordered_map<std::string, std::shared_ptr<ClTobiIc>>::iterator TicClientMapIt;
-//typedef std::unordered_map<std::string, std::shared_ptr<ClTobiIc>>::const_iterator TicClientMapConstIt;
+typedef std::unordered_map<std::string, std::shared_ptr<ClTobiIc>> TicClientMap;
+typedef std::unordered_map<std::string, std::shared_ptr<ClTobiIc>>::iterator TicClientMapIt;
+typedef std::unordered_map<std::string, std::shared_ptr<ClTobiIc>>::const_iterator TicClientMapConstIt;
 
-typedef std::unordered_map<std::string, ClTobiIc*> TicClientMap;
-typedef std::unordered_map<std::string, ClTobiIc*>::iterator TicClientMapIt;
-typedef std::unordered_map<std::string, ClTobiIc*>::const_iterator TicClientMapConstIt;
+//typedef std::unordered_map<std::string, ClTobiIc*> TicClientMap;
+//typedef std::unordered_map<std::string, ClTobiIc*>::iterator TicClientMapIt;
+//typedef std::unordered_map<std::string, ClTobiIc*>::const_iterator TicClientMapConstIt;
 
 class TicClientSet {
 
@@ -29,9 +29,10 @@ class TicClientSet {
 		bool Remove(const std::string& pipe);
 		void Erase(void);
 		
-		bool Get(const std::string& pipe, ClTobiIc*& tic);
+		bool Get(const std::string& pipe, std::shared_ptr<ClTobiIc>& tic);
 
 		bool Add(const std::string& pipe, unsigned int mode);
+		void Dump(void);
 
 		TicClientMapIt Begin(void);
 		TicClientMapIt End(void);

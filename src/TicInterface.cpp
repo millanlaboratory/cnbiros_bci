@@ -34,19 +34,31 @@ TicInterface::~TicInterface(void) {
 
 bool TicInterface::Attach(const std::string& pipe, unsigned int mode) {
 
-	ClTobiIc* ptic = nullptr;
+	std::shared_ptr<ClTobiIc> ptic = nullptr;
+	std::string lmode;
 	bool retcod    = false;
 
 	// Remove ClTobiIc (if already exists)
-	this->ticclset_->Remove(pipe);
-
+	if(this->ticclset_->Remove(pipe)) {
+		ROS_WARN("Removed previous connection to cnbi loop on pipe %s", pipe.c_str());
+	}
+	
 	// Create ClTobiIc as GetOnly or SetOnly according to the provided mode
 	switch(mode) {
 		case TicInterface::ToRos:
-			this->ticclset_->Add(pipe, ClTobiIc::GetOnly);
+			lmode  = "cnbi2ros";
+			retcod = this->ticclset_->Add(pipe, ClTobiIc::GetOnly);
 			break;
 		case TicInterface::ToCnbi:
-			this->ticclset_->Add(pipe, ClTobiIc::SetOnly);
+			lmode  = "ros2cnbi";
+			retcod = this->ticclset_->Add(pipe, ClTobiIc::SetOnly);
+	}
+
+	if(retcod == false) {
+		ROS_ERROR("Cannot add a new connection to cnbi loop on pipe %s: already exists", pipe.c_str());
+		return false;
+	} else {
+		ROS_INFO("Added new connection to cnbi loop (%s) on pipe %s", lmode.c_str(), pipe.c_str());
 	}
 
 	// Retrieve pointer to the ClTobiIc added and try to attach
@@ -54,7 +66,7 @@ bool TicInterface::Attach(const std::string& pipe, unsigned int mode) {
 		retcod = ptic->Attach(pipe);
 
 	if (retcod == true)
-		ROS_INFO("Attached to the CNBILoop at: %s", pipe.c_str());
+		ROS_INFO("Connection to cnbi loop attached on pipe: %s", pipe.c_str());
 
 	return retcod;
 }
@@ -62,18 +74,18 @@ bool TicInterface::Attach(const std::string& pipe, unsigned int mode) {
 bool TicInterface::on_set_tic_(cnbiros_bci::SetTic::Request& req,
 								cnbiros_bci::SetTic::Response& res) {
 
-	std::string ldir;
+	std::string lmode;
 
 	switch(req.mode) {
 		case TicInterface::ToRos:
-			ldir = "cnbi2ros";
+			lmode = "cnbi2ros";
 			break;
 		case TicInterface::ToCnbi:
-			ldir = "ros2cnbi";
+			lmode = "ros2cnbi";
 			break;
 	}
 
-	ROS_INFO("Requested to attach to %s (%s)", req.pipe.c_str(), ldir.c_str());
+	ROS_INFO("Requested new connection to cnbi loop (%s) on pipe %s", lmode.c_str(), req.pipe.c_str());
 	res.result = this->Attach(req.pipe, req.mode);
 
 	return res.result;
@@ -83,13 +95,16 @@ bool TicInterface::on_unset_tic_(cnbiros_bci::UnSetTic::Request& req,
 								 cnbiros_bci::UnSetTic::Response& res) {
 
 	res.result = true;
-	ROS_INFO("Requested to detach from %s", req.pipe.c_str());
-	this->Detach(req.pipe);
-	ROS_INFO("Detached from %s", req.pipe.c_str());
-
-	this->ticclset_->Remove(req.pipe);
+	ROS_INFO("Requested to remove connection on pipe %s", req.pipe.c_str());
 	
-	return true;
+	if(this->ticclset_->Remove(req.pipe)) {
+		ROS_INFO("Removed connection to cnbi loop on pipe %s", req.pipe.c_str());
+	} else {
+		ROS_WARN("Cannot remove connection on pipe %s, it does not exist", req.pipe.c_str());
+		res.result = false;
+	}
+	
+	return res.result;
 }
 
 
@@ -107,16 +122,19 @@ void TicInterface::Run(void) {
 	
 			if(it->second->GetMode() == ClTobiIc::GetOnly) {
 				
-				if(it->second->IsAttached()) {
-					if(it->second->GetMessage(&cnbiIcs) == ClTobiIc::HasMessage) {
-						ROS_INFO_ONCE("First message received from %s", it->first.c_str());
-						rosIcmList = tictool.GetMessage(cnbiIcm, it->first);
-						for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
-							this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
-						}
-
+				if(it->second->GetMessage(&cnbiIcs) == ClTobiIc::HasMessage) {
+					ROS_INFO_ONCE("First message received from pipe %s", it->first.c_str());
+					rosIcmList = tictool.GetMessage(cnbiIcm, it->first);
+					for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
+						this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
 					}
-				} 			
+
+				} else if(it->second->GetMessage(&cnbiIcs) == ClTobiIc::Detached) {
+					ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
+					if(it->second->Attach(it->first)) {
+						ROS_INFO("Connection on pipe %s attached", it->first.c_str());
+					}
+				}
 			}
 		}
 	
@@ -125,21 +143,22 @@ void TicInterface::Run(void) {
 	}
 }
 
-void TicInterface::Detach(const std::string& pipe) {
+bool TicInterface::Detach(const std::string& pipe) {
 
-	ClTobiIc* ptic = nullptr;
+	std::shared_ptr<ClTobiIc> ptic = nullptr;
+	bool result = false;
 	if(this->ticclset_->Get(pipe, ptic)) {
-		if(ptic->IsAttached()) {
-			ptic->Detach();
-		}
+		result = ptic->Detach();
 	}
+
+	return result;
 	
 }
 
 
 void TicInterface::callback_ros2tic(const cnbiros_bci::TicMessage& rosIcm) {
 
-	ClTobiIc*   ptic;
+	std::shared_ptr<ClTobiIc>   ptic;
 	bool 		retcod = false;
 
 	ICMessage		  		cnbiIcm;
@@ -152,15 +171,20 @@ void TicInterface::callback_ros2tic(const cnbiros_bci::TicMessage& rosIcm) {
 	// Check if the corresponding ClTobiIc exists and is attached
 	if(this->ticclset_->Get(rosIcm.pipe, ptic)) {
 		if(ptic->IsAttached()) {
-			ROS_INFO_ONCE("First message streamed from ROS to %s", rosIcm.pipe.c_str());
+			ROS_INFO_ONCE("First message streamed from ROS to pipe %s", rosIcm.pipe.c_str());
 			ptic->SetMessage(&cnbiIcs);
 			retcod = true;
-		}	
+		} else {	
+			ROS_WARN_THROTTLE(5, "Connection on pipe %s detached. Try to attach again..", rosIcm.pipe.c_str());
+			if(ptic->Attach(rosIcm.pipe)) {
+				ROS_INFO("Connection on pipe %s attached", rosIcm.pipe.c_str());
+			}
+		}
 	}
 	
 	if(retcod == false) {
 		ROS_ERROR_THROTTLE(10, "Message received from ROS to CNBILoop. " 
-			      "However, no connection to %s has been found.", rosIcm.pipe.c_str());	
+			      "However, no connection to pipe %s has been found.", rosIcm.pipe.c_str());	
 	}
 
 }
