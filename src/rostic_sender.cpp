@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
 	// ros initialization
 	ros::init(argc, argv, "ros_ticsender");
-	ros::NodeHandle node("~");
+	ros::NodeHandle node;
 	ros::Rate r(10);
 
 	// Set ROS publisher

@@ -1,0 +1,4 @@
+string pipe
+uint16 mode
+---
+bool result

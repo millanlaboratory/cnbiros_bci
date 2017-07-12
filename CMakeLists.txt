@@ -30,6 +30,8 @@ add_service_files(
   FILES
   SetTid.srv
   UnSetTid.srv
+  SetTic.srv
+  UnSetTic.srv
 )
 
 generate_messages(

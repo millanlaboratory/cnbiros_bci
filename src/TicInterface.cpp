@@ -17,6 +17,13 @@ TicInterface::TicInterface(ros::NodeHandle* node, CcAddress address) : TobiInter
 	
 	// Create and subscribe to ROS topic
 	this->subset_->Add(CNBIROS_BCI_TIC_ROS2CNBI, &TicInterface::callback_ros2tic, this);
+
+	// Add services
+	this->rossrv_set_tic_ = node->advertiseService(
+					  	     ros::this_node::getName() + "/set_tic", &TicInterface::on_set_tic_, this);
+	
+	this->rossrv_unset_tic_ = node->advertiseService(
+					  	      ros::this_node::getName() + "/unset_tic", &TicInterface::on_unset_tic_, this);
 };
 
 TicInterface::~TicInterface(void) {
@@ -52,6 +59,39 @@ bool TicInterface::Attach(const std::string& pipe, unsigned int mode) {
 	return retcod;
 }
 
+bool TicInterface::on_set_tic_(cnbiros_bci::SetTic::Request& req,
+								cnbiros_bci::SetTic::Response& res) {
+
+	std::string ldir;
+
+	switch(req.mode) {
+		case TicInterface::ToRos:
+			ldir = "cnbi2ros";
+			break;
+		case TicInterface::ToCnbi:
+			ldir = "ros2cnbi";
+			break;
+	}
+
+	ROS_INFO("Requested to attach to %s (%s)", req.pipe.c_str(), ldir.c_str());
+	res.result = this->Attach(req.pipe, req.mode);
+
+	return res.result;
+}
+
+bool TicInterface::on_unset_tic_(cnbiros_bci::UnSetTic::Request& req,
+								 cnbiros_bci::UnSetTic::Response& res) {
+
+	res.result = true;
+	ROS_INFO("Requested to detach from %s", req.pipe.c_str());
+	this->Detach(req.pipe);
+	ROS_INFO("Detached from %s", req.pipe.c_str());
+
+	this->ticclset_->Remove(req.pipe);
+	
+	return true;
+}
+
 
 void TicInterface::Run(void) {
 
@@ -76,9 +116,7 @@ void TicInterface::Run(void) {
 						}
 
 					}
-				} else {
-					this->Attach(it->first, ClTobiIc::SetOnly);
-				}
+				} 			
 			}
 		}
 	
@@ -90,8 +128,12 @@ void TicInterface::Run(void) {
 void TicInterface::Detach(const std::string& pipe) {
 
 	ClTobiIc* ptic = nullptr;
-	if(this->ticclset_->Get(pipe, ptic))
-		ptic->Detach();
+	if(this->ticclset_->Get(pipe, ptic)) {
+		if(ptic->IsAttached()) {
+			ptic->Detach();
+		}
+	}
+	
 }
 
 
@@ -113,9 +155,7 @@ void TicInterface::callback_ros2tic(const cnbiros_bci::TicMessage& rosIcm) {
 			ROS_INFO_ONCE("First message streamed from ROS to %s", rosIcm.pipe.c_str());
 			ptic->SetMessage(&cnbiIcs);
 			retcod = true;
-		} else {
-			ptic->Attach(rosIcm.pipe);
-		}
+		}	
 	}
 	
 	if(retcod == false) {
