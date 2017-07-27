@@ -47,7 +47,7 @@ bool TicClientSet::Remove(const std::string& pipe) {
 void TicClientSet::Dump(void) {
 	printf("Dump TiCClientSet:\n");
 	for(auto it=this->ticclset_.begin(); it!=ticclset_.end(); ++it) {
-		printf("|- %s : %p\n", it->first.c_str(), it->second);
+		printf("|- %s : %p\n", it->first.c_str(), it->second.get());
 	}
 }
 
