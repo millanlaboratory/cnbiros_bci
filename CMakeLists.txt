@@ -32,6 +32,7 @@ add_service_files(
   UnSetTid.srv
   SetTic.srv
   UnSetTic.srv
+  SyncTic.srv
 )
 
 generate_messages(

@@ -20,10 +20,13 @@ TicInterface::TicInterface(ros::NodeHandle* node, CcAddress address) : TobiInter
 
 	// Add services
 	this->rossrv_set_tic_ = node->advertiseService(
-					  	     ros::this_node::getName() + "/set_tic", &TicInterface::on_set_tic_, this);
+					  	     ros::this_node::getName() + "/set_tic", &TicInterface::on_set_tic, this);
 	
 	this->rossrv_unset_tic_ = node->advertiseService(
-					  	      ros::this_node::getName() + "/unset_tic", &TicInterface::on_unset_tic_, this);
+					  	      ros::this_node::getName() + "/unset_tic", &TicInterface::on_unset_tic, this);
+	
+	this->rossrv_sync_tic_ = node->advertiseService(
+					  	     ros::this_node::getName() + "/sync_tic", &TicInterface::on_sync_tic, this);
 };
 
 TicInterface::~TicInterface(void) {
@@ -71,8 +74,8 @@ bool TicInterface::Attach(const std::string& pipe, unsigned int mode) {
 	return retcod;
 }
 
-bool TicInterface::on_set_tic_(cnbiros_bci::SetTic::Request& req,
-								cnbiros_bci::SetTic::Response& res) {
+bool TicInterface::on_set_tic(cnbiros_bci::SetTic::Request& req,
+							  cnbiros_bci::SetTic::Response& res) {
 
 	std::string lmode;
 
@@ -91,8 +94,8 @@ bool TicInterface::on_set_tic_(cnbiros_bci::SetTic::Request& req,
 	return res.result;
 }
 
-bool TicInterface::on_unset_tic_(cnbiros_bci::UnSetTic::Request& req,
-								 cnbiros_bci::UnSetTic::Response& res) {
+bool TicInterface::on_unset_tic(cnbiros_bci::UnSetTic::Request& req,
+								cnbiros_bci::UnSetTic::Response& res) {
 
 	res.result = true;
 	ROS_INFO("Requested to remove connection on pipe %s", req.pipe.c_str());
@@ -107,6 +110,22 @@ bool TicInterface::on_unset_tic_(cnbiros_bci::UnSetTic::Request& req,
 	return res.result;
 }
 
+bool TicInterface::on_sync_tic(cnbiros_bci::SyncTic::Request &req,
+							   cnbiros_bci::SyncTic::Response &res) {
+
+	ICMessage 		  		cnbiIcm;
+	ICSerializerRapid 		cnbiIcs(&cnbiIcm);
+
+	for(auto it = this->ticclset_->Begin(); it != this->ticclset_->End(); ++it) {
+		if(it->second->GetMode() == ClTobiIc::GetOnly) {
+			if(it->second->IsAttached())
+				while(it->second->GetMessage(&cnbiIcs) == ClTobiIc::HasMessage);
+		}
+	}
+	ROS_INFO("Sync tic pipes");
+	res.result = true;
+	return res.result;
+}
 
 void TicInterface::Run(void) {
 
