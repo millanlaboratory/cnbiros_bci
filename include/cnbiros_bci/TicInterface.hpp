@@ -15,7 +15,7 @@
 
 #include "cnbiros_bci/SetTic.h"
 #include "cnbiros_bci/UnSetTic.h"
-#include "cnbiros_bci/SyncTic.h"
+#include "cnbiros_bci/Sync.h"
 
 namespace cnbiros {
 	namespace bci {
@@ -41,8 +41,8 @@ class TicInterface : public TobiInterface {
 						 cnbiros_bci::SetTic::Response &res);
 		bool on_unset_tic(cnbiros_bci::UnSetTic::Request &req,
 						   cnbiros_bci::UnSetTic::Response &res);
-		bool on_sync_tic(cnbiros_bci::SyncTic::Request &req,
-						 cnbiros_bci::SyncTic::Response &res);
+		bool on_sync(cnbiros_bci::Sync::Request &req,
+					     cnbiros_bci::Sync::Response &res);
 
 	private:
 		TicClientSet*		ticclset_;
@@ -51,7 +51,10 @@ class TicInterface : public TobiInterface {
 		ros::NodeHandle* 	rosnode_;
 		ros::ServiceServer	rossrv_set_tic_;
 		ros::ServiceServer	rossrv_unset_tic_;
-		ros::ServiceServer	rossrv_sync_tic_;
+		ros::ServiceServer	rossrv_sync_;
+		ICMessage*			cnbiicm_;
+		ICSerializerRapid*	cnbiics_;
+		int 				syncidx_;
 
 };
 

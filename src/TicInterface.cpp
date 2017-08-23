@@ -25,8 +25,14 @@ TicInterface::TicInterface(ros::NodeHandle* node, CcAddress address) : TobiInter
 	this->rossrv_unset_tic_ = node->advertiseService(
 					  	      ros::this_node::getName() + "/unset_tic", &TicInterface::on_unset_tic, this);
 	
-	this->rossrv_sync_tic_ = node->advertiseService(
-					  	     ros::this_node::getName() + "/sync_tic", &TicInterface::on_sync_tic, this);
+	this->rossrv_sync_ = node->advertiseService(
+					  	     ros::this_node::getName() + "/sync", &TicInterface::on_sync, this);
+
+	// Initialize serializers
+	this->cnbiicm_ = new ICMessage;
+	this->cnbiics_ = new ICSerializerRapid(this->cnbiicm_);
+
+	this->syncidx_ = TCBlock::BlockIdxUnset;
 };
 
 TicInterface::~TicInterface(void) {
@@ -110,50 +116,64 @@ bool TicInterface::on_unset_tic(cnbiros_bci::UnSetTic::Request& req,
 	return res.result;
 }
 
-bool TicInterface::on_sync_tic(cnbiros_bci::SyncTic::Request &req,
-							   cnbiros_bci::SyncTic::Response &res) {
+bool TicInterface::on_sync(cnbiros_bci::Sync::Request &req,
+							   cnbiros_bci::Sync::Response &res) {
 
-	ICMessage 		  		cnbiIcm;
-	ICSerializerRapid 		cnbiIcs(&cnbiIcm);
-
-	for(auto it = this->ticclset_->Begin(); it != this->ticclset_->End(); ++it) {
-		if(it->second->GetMode() == ClTobiIc::GetOnly) {
-			if(it->second->IsAttached())
-				while(it->second->GetMessage(&cnbiIcs) == ClTobiIc::HasMessage);
-		}
-	}
-	ROS_INFO("Sync tic pipes");
+	this->syncidx_ = req.syncidx;
+	ROS_INFO("Sync tic pipes at NDF=%d", this->syncidx_);
 	res.result = true;
 	return res.result;
 }
 
 void TicInterface::Run(void) {
 
-	ICMessage 		  		cnbiIcm;
-	ICSerializerRapid 		cnbiIcs(&cnbiIcm);
+	//ICMessage 		  		cnbiIcm;
+	//ICSerializerRapid 		cnbiIcs(&cnbiIcm);
 	TicTools 		  		tictool;
 	std::vector<cnbiros_bci::TicMessage> rosIcmList;
-
 	ros::Rate r(50);
 	while(this->rosnode_->ok()) {
 
 		for(auto it = this->ticclset_->Begin(); it != this->ticclset_->End(); ++it) {
-	
 			if(it->second->GetMode() == ClTobiIc::GetOnly) {
-				
-				if(it->second->GetMessage(&cnbiIcs) == ClTobiIc::HasMessage) {
-					ROS_INFO_ONCE("First message received from pipe %s", it->first.c_str());
-					rosIcmList = tictool.GetMessage(cnbiIcm, it->first);
-					for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
-						this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
+			
+				while(true) {
+					switch(it->second->WaitMessage(this->cnbiics_)) {
+						case ClTobiIc::Detached:
+							ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
+							if(it->second->Attach(it->first)) {
+								ROS_INFO("Connection on pipe %s attached", it->first.c_str());
+							}
+							break;
+						case ClTobiIc::NoMessage:
+							continue;
+							break;
 					}
-
-				} else if(it->second->GetMessage(&cnbiIcs) == ClTobiIc::Detached) {
-					ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
-					if(it->second->Attach(it->first)) {
-						ROS_INFO("Connection on pipe %s attached", it->first.c_str());
-					}
+					if(this->cnbiicm_->GetBlockIdx() >= this->syncidx_)
+						break;
 				}
+				rosIcmList = tictool.GetMessage(*(this->cnbiicm_), it->first);
+				for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
+					this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
+				}
+
+
+				////if(it->second->WaitMessage(&cnbiIcs) == ClTobiIc::HasMessage) {
+				//if(it->second->GetMessage(this->cnbiics_) == ClTobiIc::HasMessage) {
+				//	ROS_INFO_ONCE("First message received from pipe %s", it->first.c_str());
+				//	//rosIcmList = tictool.GetMessage(cnbiIcm, it->first);
+				//	rosIcmList = tictool.GetMessage(*(this->cnbiicm_), it->first);
+				//	for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
+				//		this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
+				//	}
+
+				////} else if(it->second->GetMessage(&cnbiIcs) == ClTobiIc::Detached) {
+				//} else if(it->second->GetMessage(this->cnbiics_) == ClTobiIc::Detached) {
+				//	ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
+				//	if(it->second->Attach(it->first)) {
+				//		ROS_INFO("Connection on pipe %s attached", it->first.c_str());
+				//	}
+				//}
 			}
 		}
 	

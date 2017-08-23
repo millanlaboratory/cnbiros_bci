@@ -32,7 +32,7 @@ add_service_files(
   UnSetTid.srv
   SetTic.srv
   UnSetTic.srv
-  SyncTic.srv
+  Sync.srv
 )
 
 generate_messages(
@@ -83,6 +83,9 @@ target_link_libraries(rostid cnbiros_bci)
 
 add_executable(rostic src/rostic.cpp)
 target_link_libraries(rostic cnbiros_bci)
+
+add_executable(rossync src/rossync.cpp)
+target_link_libraries(rossync cnbiros_bci)
 
 add_executable(rostic_sender src/rostic_sender.cpp)
 target_link_libraries(rostic_sender cnbiros_bci)
