@@ -132,29 +132,31 @@ void TicInterface::Run(void) {
 	TicTools 		  		tictool;
 	std::vector<cnbiros_bci::TicMessage> rosIcmList;
 	ros::Rate r(50);
+	bool newmessage = false;
 	while(this->rosnode_->ok()) {
 
 		for(auto it = this->ticclset_->Begin(); it != this->ticclset_->End(); ++it) {
 			if(it->second->GetMode() == ClTobiIc::GetOnly) {
-			
-				while(true) {
-					switch(it->second->WaitMessage(this->cnbiics_)) {
-						case ClTobiIc::Detached:
-							ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
-							if(it->second->Attach(it->first)) {
-								ROS_INFO("Connection on pipe %s attached", it->first.c_str());
-							}
-							break;
-						case ClTobiIc::NoMessage:
-							continue;
-							break;
-					}
-					if(this->cnbiicm_->GetBlockIdx() >= this->syncidx_)
+		
+				switch(it->second->GetMessage(this->cnbiics_)) {
+					case ClTobiIc::Detached:
+						ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
+						if(it->second->Attach(it->first)) {
+							ROS_INFO("Connection on pipe %s attached", it->first.c_str());
+						}
 						break;
-				}
-				rosIcmList = tictool.GetMessage(*(this->cnbiicm_), it->first);
-				for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
-					this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
+					case ClTobiIc::NoMessage:
+						break;
+
+					case ClTobiIc::HasMessage:
+						ROS_INFO_ONCE("First message received from pipe %s", it->first.c_str());
+						if(this->cnbiicm_->GetBlockIdx() >= this->syncidx_) {
+							rosIcmList = tictool.GetMessage(*(this->cnbiicm_), it->first);
+							for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
+								this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
+							}
+						}
+
 				}
 
 
