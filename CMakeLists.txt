@@ -72,11 +72,12 @@ add_library(cnbiros_bci
 			src/TicInterface.cpp
 			src/TicTools.cpp
 			)
-		target_link_libraries(cnbiros_bci ${catkin_LIBRARIES} 
-										  ${CNBILOOP_LIBRARIES} 
-										  ${TOBICORE_LIBRARIES}
-										  ${TOBIID_LIBRARIES}
-										  ${TOBIIC_LIBRARIES})
+add_dependencies(cnbiros_bci cnbiros_bci_generate_messages_cpp)
+target_link_libraries(cnbiros_bci ${catkin_LIBRARIES} 
+								  ${CNBILOOP_LIBRARIES} 
+								  ${TOBICORE_LIBRARIES}
+								  ${TOBIID_LIBRARIES}
+								  ${TOBIIC_LIBRARIES})
 
 add_executable(rostid src/rostid.cpp)
 target_link_libraries(rostid cnbiros_bci)
