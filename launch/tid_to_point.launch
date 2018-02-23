@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="tidtopoint_params" default="$(find cnbiros_bci)/params/default_tidtopoint_params.yaml"/>
+	<node pkg="cnbiros_bci" type="tid_to_point" output="screen" name="tid_to_point" >
+	  <rosparam subst_value="True" file="$(arg tidtopoint_params)" command="load" />
+  </node>
+</launch>

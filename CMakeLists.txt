@@ -18,6 +18,7 @@ include_directories(${catkin_INCLUDE_DIRS}
 					${TOBIIC_INCLUDE_DIRS} 
 					include)
 
+
 add_message_files(
 	FILES
 	TidMessage.msg
@@ -71,6 +72,7 @@ add_library(cnbiros_bci
 			src/TicClientSet.cpp
 			src/TicInterface.cpp
 			src/TicTools.cpp
+			src/TidToPoint.cpp
 			)
 add_dependencies(cnbiros_bci cnbiros_bci_generate_messages_cpp)
 target_link_libraries(cnbiros_bci ${catkin_LIBRARIES} 
@@ -93,6 +95,9 @@ target_link_libraries(rostic_sender cnbiros_bci)
 
 add_executable(rostid_sender src/rostid_sender.cpp)
 target_link_libraries(rostid_sender cnbiros_bci)
+
+add_executable(tid_to_point src/tid_to_point.cpp)
+target_link_libraries(tid_to_point ${PROJECT_NAME})
 
 add_executable(example_cnbiloop examples/example_cnbiloop.cpp)
 target_link_libraries(example_cnbiloop cnbiros_bci)
