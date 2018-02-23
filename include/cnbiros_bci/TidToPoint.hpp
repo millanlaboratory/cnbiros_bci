@@ -12,7 +12,6 @@
 
 // Package includes
 #include "cnbiros_bci/TidMessage.h"
-#include "cnbiros_bci/TidToPointConfig.h"
 
 namespace cnbiros {
 	namespace bci {
