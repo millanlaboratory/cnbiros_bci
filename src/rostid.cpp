@@ -15,12 +15,13 @@ int main(int argc, char** argv) {
 	bool exit = false;
 
 	// Getting nameserver address
-	if(ros::param::get("nameserver", nameserver) == false) {
+	if(node.getParam("/rostid/nameserver", nameserver) == false) {
 		ROS_INFO("Default nameserver address: 127.0.0.1:8123 (or the one in ~/.cnbiloop)");
 	}
 	
 	// get custom parameters (if exists, otherwise use the default)
-	if(ros::param::get("tid_pipes", pipes) == false) {
+	//if(ros::param::get("tid_pipes", pipes) == false) {
+	if(node.getParam("/rostid/tid_pipes", pipes) == false) {
 		ROS_WARN("No Tid pipes to cnbi/ros provided. Use node services to add them.");
 	}
 
