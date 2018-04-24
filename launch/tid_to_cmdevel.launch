@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="tidtocmdvel_params" default="$(find cnbiros_bci)/params/default_tidtocmdvel_params.yaml"/>
+	<node pkg="cnbiros_bci" type="tid_to_cmdvel" output="screen" name="tid_to_cmdvel" >
+	  <rosparam subst_value="True" file="$(arg tidtocmdvel_params)" command="load" />
+  </node>
+</launch>

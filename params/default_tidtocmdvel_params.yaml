@@ -1,0 +1,7 @@
+source:   /rostid_cnbi2ros
+target:    /cmd_vel
+commands:
+    - {event: "0x6302", linear: 0.0, angular:  0.0, label: "stop"}
+    - {event: "0x6303", linear: 0.1, angular:  0.0, label: "forward"}
+    - {event: "0x6304", linear: 0.0, angular: -0.1, label: "right"}
+    - {event: "0x6305", linear: 0.0, angular:  0.1, label: "left"}
