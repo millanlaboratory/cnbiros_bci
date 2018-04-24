@@ -90,6 +90,8 @@ void TidToCmdVel::on_received_tid(const cnbiros_bci::TidMessage& msg) {
 				  itl->second.c_str());
 
 		this->pub_.publish(itc->second);
+	} else {
+	//	ROS_WARN("Unknown event: %s", itc->first.c_str());
 	}
 
 }
