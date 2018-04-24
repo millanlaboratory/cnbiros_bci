@@ -35,6 +35,9 @@ class TidToCmdVel {
 
 		std::map<std::string, std::string> cmd_labels_;
 		std::map<std::string, geometry_msgs::Twist> cmd_vel_;
+		std::map<std::string, bool> cmd_mode_;
+
+		geometry_msgs::Twist	current_cmd_;
 
 
 };

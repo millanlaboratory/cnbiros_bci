@@ -27,6 +27,7 @@ bool TidToCmdVel::configure(void) {
 	XmlRpc::XmlRpcValue dict;
 	std::string	dict_key;
 	geometry_msgs::Twist cmd;
+	bool additive;
 
 	// Getting parameters
 	this->private_nh_.param<std::string>("source", this->stopic_, "/rostid_cnbi2ros");
@@ -55,11 +56,19 @@ bool TidToCmdVel::configure(void) {
 				ROS_ERROR("Commands dictionary must have fields 'event', 'linear', 'angular' and 'label'");
 				return false;
 			}
+
+			additive = false;
+			if(dict[i].hasMember("additive") == true) {
+				additive = static_cast<bool>(dict[i]["additive"]);
+			}
+
 			dict_key	  = static_cast<std::string>(dict[i]["event"]);
 			cmd.linear.x  = static_cast<double>(dict[i]["linear"]);
 			cmd.angular.z = static_cast<double>(dict[i]["angular"]);
 			this->cmd_vel_[dict_key] = cmd;
 			this->cmd_labels_[dict_key] = static_cast<std::string>(dict[i]["label"]);
+			this->cmd_mode_[dict_key] = additive;
+			
 		}
 	} catch (XmlRpc::XmlRpcException& ex) {
 		ROS_ERROR("Wrong format for commands dictionary.");
@@ -68,7 +77,8 @@ bool TidToCmdVel::configure(void) {
 
 	for(auto it=this->cmd_vel_.begin(); it!=this->cmd_vel_.end(); ++it) {
 		auto itl = this->cmd_labels_.find(it->first.c_str());
-		ROS_INFO("Commands dictionary: ['%s'] => linear: %f, angular: %f, label: %s", it->first.c_str(), it->second.linear.x, it->second.angular.z, itl->second.c_str());
+		auto ita = this->cmd_mode_.find(it->first.c_str());
+		ROS_INFO("Commands dictionary: ['%s'] => linear: %f, angular: %f, label: %s, additive: %d", it->first.c_str(), it->second.linear.x, it->second.angular.z, itl->second.c_str(), ita->second);
 	}
 
 	return true;
@@ -83,13 +93,25 @@ void TidToCmdVel::on_received_tid(const cnbiros_bci::TidMessage& msg) {
 	
 	auto itc = this->cmd_vel_.find(sevent.str());
 	auto itl = this->cmd_labels_.find(sevent.str());
+	auto ita = this->cmd_mode_.find(sevent.str());
 
 	if(itc != this->cmd_vel_.end()) {
 		ROS_INFO("Received TiD event: ['%s'] => linear: %f, angular: %f, label: %s", 
 				  itc->first.c_str(), itc->second.linear.x, itc->second.angular.z, 
 				  itl->second.c_str());
+	
+		if(ita->second == true) {
+			this->current_cmd_.linear.x  += itc->second.linear.x;  
+			this->current_cmd_.linear.y  += itc->second.linear.y;  
+			this->current_cmd_.linear.z  += itc->second.linear.z;  
+			this->current_cmd_.angular.x += itc->second.angular.x; 
+			this->current_cmd_.angular.y += itc->second.angular.y; 
+			this->current_cmd_.angular.z += itc->second.angular.z; 
+		} else {
+			this->current_cmd_ = itc->second;
+		}
 
-		this->pub_.publish(itc->second);
+		this->pub_.publish(this->current_cmd_);
 	} else {
 	//	ROS_WARN("Unknown event: %s", itc->first.c_str());
 	}
