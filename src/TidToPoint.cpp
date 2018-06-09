@@ -46,7 +46,7 @@ bool TidToPoint::configure(void) {
 				return false;
 			}
 			dict_key = static_cast<std::string>(dict[i]["event"]);
-			this->commands_[dict_key] = static_cast<double>(dict[i]["angle"]);
+			this->commands_[dict_key] = this->deg2rad(static_cast<double>(dict[i]["angle"]));
 		}
 	} catch (XmlRpc::XmlRpcException& ex) {
 		ROS_ERROR("Wrong format for commands dictionary.");
@@ -54,7 +54,7 @@ bool TidToPoint::configure(void) {
 	}
 
 	for(auto it=this->commands_.begin(); it!=this->commands_.end(); ++it) {
-		ROS_INFO("Configured commands: ['%s'] => %+6.2f [deg]", it->first.c_str(), it->second*180.0f/M_PI);
+		ROS_INFO("Configured commands: ['%s'] => %+6.2f [deg]", it->first.c_str(), this->rad2deg(it->second));
 	}
 
 	return true;
@@ -72,7 +72,7 @@ void TidToPoint::on_received_tid(const cnbiros_bci::TidMessage& msg) {
 	it = this->commands_.find(sevent.str());
 
 	if(it != this->commands_.end()) {
-		ROS_INFO("Received TiD event: ['%s'] => %+6.2f", it->first.c_str(), it->second*180.0f/M_PI);
+		ROS_INFO("Received TiD event: ['%s'] => %+6.2f", it->first.c_str(), this->rad2deg(it->second));
 
 		// Convert the angle from robot coordinate
 		angle = it->second + M_PI/2.0f;
@@ -89,6 +89,13 @@ void TidToPoint::on_received_tid(const cnbiros_bci::TidMessage& msg) {
 	}
 }
 
+float TidToPoint::rad2deg(float rad) {
+	return rad*180.0f/M_PI;
+}
+
+float TidToPoint::deg2rad(float deg) {
+	return deg*M_PI/180.0f;
+}
 
 	}
 }

@@ -64,7 +64,7 @@ bool TidToCmdVel::configure(void) {
 
 			dict_key	  = static_cast<std::string>(dict[i]["event"]);
 			cmd.linear.x  = static_cast<double>(dict[i]["linear"]);
-			cmd.angular.z = static_cast<double>(dict[i]["angular"]);
+			cmd.angular.z = this->deg2rad(static_cast<double>(dict[i]["angular"]));
 			this->cmd_vel_[dict_key] = cmd;
 			this->cmd_labels_[dict_key] = static_cast<std::string>(dict[i]["label"]);
 			this->cmd_mode_[dict_key] = additive;
@@ -78,7 +78,7 @@ bool TidToCmdVel::configure(void) {
 	for(auto it=this->cmd_vel_.begin(); it!=this->cmd_vel_.end(); ++it) {
 		auto itl = this->cmd_labels_.find(it->first.c_str());
 		auto ita = this->cmd_mode_.find(it->first.c_str());
-		ROS_INFO("Commands dictionary: ['%s'] => linear: %f, angular: %f, label: %s, additive: %d", it->first.c_str(), it->second.linear.x, it->second.angular.z, itl->second.c_str(), ita->second);
+		ROS_INFO("Commands dictionary: ['%s'] => linear: %f, angular: %f, label: %s, additive: %d", it->first.c_str(), it->second.linear.x, this->rad2deg(it->second.angular.z), itl->second.c_str(), ita->second);
 	}
 
 	return true;
@@ -97,7 +97,7 @@ void TidToCmdVel::on_received_tid(const cnbiros_bci::TidMessage& msg) {
 
 	if(itc != this->cmd_vel_.end()) {
 		ROS_INFO("Received TiD event: ['%s'] => linear: %f, angular: %f, label: %s", 
-				  itc->first.c_str(), itc->second.linear.x, itc->second.angular.z, 
+				  itc->first.c_str(), itc->second.linear.x, this->rad2deg(itc->second.angular.z), 
 				  itl->second.c_str());
 	
 		if(ita->second == true) {
@@ -118,6 +118,13 @@ void TidToCmdVel::on_received_tid(const cnbiros_bci::TidMessage& msg) {
 
 }
 
+float TidToCmdVel::rad2deg(float rad) {
+	return rad*180.0f/M_PI;
+}
+
+float TidToCmdVel::deg2rad(float deg) {
+	return deg*M_PI/180.0f;
+}
 
 	}
 }

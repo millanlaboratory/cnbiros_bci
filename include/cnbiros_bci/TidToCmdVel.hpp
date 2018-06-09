@@ -21,6 +21,8 @@ class TidToCmdVel {
 
 	private:
 		void on_received_tid(const cnbiros_bci::TidMessage& msg);
+		float rad2deg(float rad);
+		float deg2rad(float deg);
 
 	private: 
 		ros::NodeHandle nh_;

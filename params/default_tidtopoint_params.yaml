@@ -4,5 +4,5 @@ point:    /point
 distance: 1.0
 commands:
     - {event: "0x6603", angle:  0.0}
-    - {event: "0x6605", angle:  1.570796325}
-    - {event: "0x6606", angle: -1.570796325}
+    - {event: "0x6605", angle:  90.0}
+    - {event: "0x6606", angle: -90.0}
