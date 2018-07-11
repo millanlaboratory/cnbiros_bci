@@ -11,7 +11,7 @@
 #include "cnbiros_bci/TobiInterface.hpp"
 #include "cnbiros_bci/TicClientSet.hpp"
 #include "cnbiros_bci/TicTools.hpp"
-#include "cnbiros_bci/TicMessage.h"
+#include "cnbiros_tobi_msgs/TicMessage.h"
 
 #include "cnbiros_bci/SetTic.h"
 #include "cnbiros_bci/UnSetTic.h"
@@ -36,7 +36,7 @@ class TicInterface : public TobiInterface {
 		static const unsigned int ToCnbi = 1;
 
 	private:
-		void callback_ros2tic(const cnbiros_bci::TicMessage& msg);
+		void callback_ros2tic(const cnbiros_tobi_msgs::TicMessage& msg);
 		bool on_set_tic(cnbiros_bci::SetTic::Request &req,
 						 cnbiros_bci::SetTic::Response &res);
 		bool on_unset_tic(cnbiros_bci::UnSetTic::Request &req,

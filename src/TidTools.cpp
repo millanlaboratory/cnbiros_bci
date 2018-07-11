@@ -10,7 +10,7 @@ TidTools::TidTools(void) {}
 
 TidTools::~TidTools(void) {}
 
-IDMessage TidTools::GetMessage(const cnbiros_bci::TidMessage& idmros) {
+IDMessage TidTools::GetMessage(const cnbiros_tobi_msgs::TidMessage& idmros) {
 
 	IDMessage idmcnbi;
 
@@ -24,9 +24,9 @@ IDMessage TidTools::GetMessage(const cnbiros_bci::TidMessage& idmros) {
 	return idmcnbi;
 }
 
-cnbiros_bci::TidMessage TidTools::GetMessage(const IDMessage& idmcnbi, const std::string& pipe) {
+cnbiros_tobi_msgs::TidMessage TidTools::GetMessage(const IDMessage& idmcnbi, const std::string& pipe) {
 
-	cnbiros_bci::TidMessage idmros;
+	cnbiros_tobi_msgs::TidMessage idmros;
 
 	idmros.header.stamp 	= ros::Time::now();
 	idmros.header.frame_id  = CNBIROS_BCI_TID_FRAMEID;

@@ -84,7 +84,7 @@ bool TidToCmdVel::configure(void) {
 	return true;
 }
 
-void TidToCmdVel::on_received_tid(const cnbiros_bci::TidMessage& msg) {
+void TidToCmdVel::on_received_tid(const cnbiros_tobi_msgs::TidMessage& msg) {
 
 	geometry_msgs::Twist twist;
 	std::stringstream sevent;

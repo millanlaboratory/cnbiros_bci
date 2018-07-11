@@ -11,7 +11,7 @@
 #include "cnbiros_bci/TobiInterface.hpp"
 #include "cnbiros_bci/TidClientSet.hpp"
 #include "cnbiros_bci/TidTools.hpp"
-#include "cnbiros_bci/TidMessage.h"
+#include "cnbiros_tobi_msgs/TidMessage.h"
 
 #include "cnbiros_bci/SetTid.h"
 #include "cnbiros_bci/UnSetTid.h"
@@ -31,7 +31,7 @@ class TidInterface : public TobiInterface {
 		void Run(void);
 
 	private:
-		void callback_ros2tid(const cnbiros_bci::TidMessage& msg);
+		void callback_ros2tid(const cnbiros_tobi_msgs::TidMessage& msg);
 		bool on_set_tid_(cnbiros_bci::SetTid::Request &req,
 						 cnbiros_bci::SetTid::Response &res);
 		bool on_unset_tid_(cnbiros_bci::UnSetTid::Request &req,

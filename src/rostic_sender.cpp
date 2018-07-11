@@ -33,13 +33,13 @@ int main(int argc, char** argv) {
 	ros::Rate r(10);
 
 	// Set ROS publisher
-	ros::Publisher rospub = node.advertise<cnbiros_bci::TicMessage>(CNBIROS_BCI_TIC_ROS2CNBI, 1000);
+	ros::Publisher rospub = node.advertise<cnbiros_tobi_msgs::TicMessage>(CNBIROS_BCI_TIC_ROS2CNBI, 1000);
 	
 
 	// Initialize the message
-	cnbiros_bci::TicMessage 	rosicm;
-	cnbiros_bci::TicClassifier 	rosicc;
-	cnbiros_bci::TicClass 		rosicl;
+	cnbiros_tobi_msgs::TicMessage 	rosicm;
+	cnbiros_tobi_msgs::TicClassifier 	rosicc;
+	cnbiros_tobi_msgs::TicClass 		rosicl;
 	
 	rosicl.label = "6100";
 	rosicl.value = 0.0f;

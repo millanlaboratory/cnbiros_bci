@@ -34,11 +34,11 @@ int main(int argc, char** argv) {
 	ros::Rate r(10);
 
 	// Set ROS publisher
-	ros::Publisher rospub = node.advertise<cnbiros_bci::TidMessage>(CNBIROS_BCI_TID_ROS2CNBI, 1000);
+	ros::Publisher rospub = node.advertise<cnbiros_tobi_msgs::TidMessage>(CNBIROS_BCI_TID_ROS2CNBI, 1000);
 
 
 	// Initialize the message
-	cnbiros_bci::TidMessage 	rosidm;
+	cnbiros_tobi_msgs::TidMessage 	rosidm;
 	unsigned int rosevent = std::stoi(optevent);
 
 	rosidm.header.stamp    = ros::Time::now();

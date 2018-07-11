@@ -2,7 +2,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 cmake_minimum_required(VERSION 2.8.3)
 project(cnbiros_bci)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs message_generation cnbiros_core)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs message_generation cnbiros_core cnbiros_tobi_msgs)
 find_package(PkgConfig)
 pkg_search_module(CNBILOOP REQUIRED cnbiloop)
 pkg_search_module(TOBICORE REQUIRED tobicore)
@@ -17,15 +17,6 @@ include_directories(${catkin_INCLUDE_DIRS}
 					${TOBIID_INCLUDE_DIRS} 
 					${TOBIIC_INCLUDE_DIRS} 
 					include)
-
-
-add_message_files(
-	FILES
-	TidMessage.msg
-	TicClass.msg
-	TicClassifier.msg
-	TicMessage.msg
-)
 
 add_service_files(
   FILES
@@ -75,7 +66,7 @@ add_library(cnbiros_bci
 			src/TidToPoint.cpp
 			src/TidToCmdVel.cpp
 			)
-add_dependencies(cnbiros_bci cnbiros_bci_generate_messages_cpp)
+add_dependencies(cnbiros_bci cnbiros_bci_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 target_link_libraries(cnbiros_bci ${catkin_LIBRARIES} 
 								  ${CNBILOOP_LIBRARIES} 
 								  ${TOBICORE_LIBRARIES}

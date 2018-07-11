@@ -13,7 +13,7 @@ TicInterface::TicInterface(ros::NodeHandle* node, CcAddress address) : TobiInter
 	this->ticclset_ = new TicClientSet;
 
 	// Create and advertise the ROS topic
-	this->pubset_->Add<cnbiros_bci::TicMessage>(CNBIROS_BCI_TIC_CNBI2ROS);
+	this->pubset_->Add<cnbiros_tobi_msgs::TicMessage>(CNBIROS_BCI_TIC_CNBI2ROS);
 	
 	// Create and subscribe to ROS topic
 	this->subset_->Add(CNBIROS_BCI_TIC_ROS2CNBI, &TicInterface::callback_ros2tic, this);
@@ -130,7 +130,7 @@ void TicInterface::Run(void) {
 	//ICMessage 		  		cnbiIcm;
 	//ICSerializerRapid 		cnbiIcs(&cnbiIcm);
 	TicTools 		  		tictool;
-	std::vector<cnbiros_bci::TicMessage> rosIcmList;
+	std::vector<cnbiros_tobi_msgs::TicMessage> rosIcmList;
 	ros::Rate r(50);
 	bool newmessage = false;
 	while(this->rosnode_->ok()) {
@@ -197,7 +197,7 @@ bool TicInterface::Detach(const std::string& pipe) {
 }
 
 
-void TicInterface::callback_ros2tic(const cnbiros_bci::TicMessage& rosIcm) {
+void TicInterface::callback_ros2tic(const cnbiros_tobi_msgs::TicMessage& rosIcm) {
 
 	std::shared_ptr<ClTobiIc>   ptic;
 	bool 		retcod = false;

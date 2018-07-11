@@ -10,7 +10,7 @@ TicTools::TicTools(void) {}
 
 TicTools::~TicTools(void) {}
 
-ICMessage TicTools::GetMessage(const cnbiros_bci::TicMessage& icmros) {
+ICMessage TicTools::GetMessage(const cnbiros_tobi_msgs::TicMessage& icmros) {
 
 	ICMessage 		icmcnbi;
 
@@ -35,23 +35,23 @@ ICMessage TicTools::GetMessage(const cnbiros_bci::TicMessage& icmros) {
 	return icmcnbi;
 }
 
-std::vector<cnbiros_bci::TicMessage> TicTools::GetMessage(const ICMessage& icmcnbi, const std::string& pipe) {
+std::vector<cnbiros_tobi_msgs::TicMessage> TicTools::GetMessage(const ICMessage& icmcnbi, const std::string& pipe) {
 
-	std::vector<cnbiros_bci::TicMessage> rosmessages;
+	std::vector<cnbiros_tobi_msgs::TicMessage> rosmessages;
 
 	for(auto itcc = icmcnbi.classifiers.Begin(); itcc != icmcnbi.classifiers.End(); ++itcc) {
 
-		cnbiros_bci::TicClassifier rosclassifier;
+		cnbiros_tobi_msgs::TicClassifier rosclassifier;
 
 		rosclassifier.name 	   	   = itcc->second->GetName();
 		rosclassifier.description  = itcc->second->GetDescription();
 		rosclassifier.vtype 	   = itcc->second->GetValueType();
 		rosclassifier.ltype 	   = itcc->second->GetLabelType();
 
-		std::vector<cnbiros_bci::TicClass> rosclasses;
+		std::vector<cnbiros_tobi_msgs::TicClass> rosclasses;
 		for(auto itcl = itcc->second->classes.Begin(); itcl != itcc->second->classes.End(); ++itcl) {
 			
-			cnbiros_bci::TicClass rosclass;
+			cnbiros_tobi_msgs::TicClass rosclass;
 			rosclass.label = itcl->second->GetLabel();
 			rosclass.value = itcl->second->GetValue();
 			rosclasses.push_back(rosclass);
@@ -59,7 +59,7 @@ std::vector<cnbiros_bci::TicMessage> TicTools::GetMessage(const ICMessage& icmcn
 		rosclassifier.classes = rosclasses;
 
 		
-		cnbiros_bci::TicMessage icmros;
+		cnbiros_tobi_msgs::TicMessage icmros;
 		icmros.header.stamp 	= ros::Time::now();
 		icmros.header.frame_id 	= CNBIROS_BCI_TIC_FRAMEID;
 		icmros.version 			= CNBIROS_BCI_TIC_VERSION;
@@ -74,7 +74,7 @@ std::vector<cnbiros_bci::TicMessage> TicTools::GetMessage(const ICMessage& icmcn
 	
 }
 
-float TicTools::GetValue(const cnbiros_bci::TicMessage& msg, const std::string& name, const std::string& label) {
+float TicTools::GetValue(const cnbiros_tobi_msgs::TicMessage& msg, const std::string& name, const std::string& label) {
 
 	float value;
 	bool found = false;

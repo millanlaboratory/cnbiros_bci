@@ -2,7 +2,7 @@
 #define CNBIROS_BCI_TIDTOOLS_HPP
 
 #include <tobiid/IDMessage.hpp>
-#include "cnbiros_bci/TidMessage.h"
+#include "cnbiros_tobi_msgs/TidMessage.h"
 #include "cnbiros_bci/Flags.hpp"
 
 namespace cnbiros {
@@ -40,7 +40,7 @@ class TidTools {
 		 * \param[out] 	idm 	Resulting IDMessage
 		 *
 		 */
-		IDMessage GetMessage(const cnbiros_bci::TidMessage& idmros);
+		IDMessage GetMessage(const cnbiros_tobi_msgs::TidMessage& idmros);
 		
 		/*! \brief Method to get the ID message in cnbiros_bci::TidMessage
 		 * format
@@ -51,7 +51,7 @@ class TidTools {
 		 * \param[out] 	msg 	Resulting ROS message
 		 *
 		 */
-		cnbiros_bci::TidMessage GetMessage(const IDMessage& idcnbi, const std::string& pipe);
+		cnbiros_tobi_msgs::TidMessage GetMessage(const IDMessage& idcnbi, const std::string& pipe);
 
 
 };

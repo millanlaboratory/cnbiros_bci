@@ -11,7 +11,7 @@
 #include <geometry_msgs/PointStamped.h>
 
 // Package includes
-#include "cnbiros_bci/TidMessage.h"
+#include "cnbiros_tobi_msgs/TidMessage.h"
 
 namespace cnbiros {
 	namespace bci {
@@ -46,7 +46,7 @@ class TidToPoint {
 		virtual bool configure(void);
 
 	private:
-		void on_received_tid(const cnbiros_bci::TidMessage& msg);
+		void on_received_tid(const cnbiros_tobi_msgs::TidMessage& msg);
 		float rad2deg(float rad);
 		float deg2rad(float deg);
 

@@ -13,7 +13,7 @@ TidInterface::TidInterface(ros::NodeHandle* node, CcAddress address) : TobiInter
 	this->tidclset_ = new TidClientSet;
 
 	// Create and advertise the ROS topic
-	this->pubset_->Add<cnbiros_bci::TidMessage>(CNBIROS_BCI_TID_CNBI2ROS);
+	this->pubset_->Add<cnbiros_tobi_msgs::TidMessage>(CNBIROS_BCI_TID_CNBI2ROS);
 	
 	// Create and subscribe to ROS topic
 	this->subset_->Add(CNBIROS_BCI_TID_ROS2CNBI, &TidInterface::callback_ros2tid, this);
@@ -92,7 +92,7 @@ void TidInterface::Run(void) {
 	IDMessage 		  		cnbiIdm;
 	IDSerializerRapid 		cnbiIds(&cnbiIdm);
 	TidTools 		  		tidtool;
-	cnbiros_bci::TidMessage rosIdm;
+	cnbiros_tobi_msgs::TidMessage rosIdm;
 
 	ros::Rate r(50);
 	while(this->rosnode_->ok()) {
@@ -121,7 +121,7 @@ bool TidInterface::Detach(const std::string& pipe) {
 }
 
 
-void TidInterface::callback_ros2tid(const cnbiros_bci::TidMessage& rosIdm) {
+void TidInterface::callback_ros2tid(const cnbiros_tobi_msgs::TidMessage& rosIdm) {
 
 	std::shared_ptr<ClTobiId>   ptid;
 	bool 		retcod = false;

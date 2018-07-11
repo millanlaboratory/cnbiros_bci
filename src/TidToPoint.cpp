@@ -60,7 +60,7 @@ bool TidToPoint::configure(void) {
 	return true;
 }
 
-void TidToPoint::on_received_tid(const cnbiros_bci::TidMessage& msg) {
+void TidToPoint::on_received_tid(const cnbiros_tobi_msgs::TidMessage& msg) {
 
 	geometry_msgs::PointStamped point;
 	std::stringstream sevent;
