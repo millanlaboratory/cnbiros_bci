@@ -6,62 +6,39 @@
 namespace cnbiros {
 	namespace bci {
 
-TidInterface::TidInterface(ros::NodeHandle* node, CcAddress address) : TobiInterface(address) {
-	this->rosnode_  = node;
-	this->pubset_   = new core::Publishers(node);
-	this->subset_   = new core::Subscribers(node);
-	this->tidclset_ = new TidClientSet;
+TidInterface::TidInterface(void) : TobiInterface() {
 
-	// Create and advertise the ROS topic
-	this->pubset_->Add<cnbiros_tobi_msgs::TidMessage>(CNBIROS_BCI_TID_CNBI2ROS);
-	
-	// Create and subscribe to ROS topic
-	this->subset_->Add(CNBIROS_BCI_TID_ROS2CNBI, &TidInterface::callback_ros2tid, this);
-	
-	// Add services
-	this->rossrv_set_tid_ = node->advertiseService(
-					  	     ros::this_node::getName() + "/set_tid", &TidInterface::on_set_tid_, this);
-	
-	this->rossrv_unset_tid_ = node->advertiseService(
-					  	      ros::this_node::getName() + "/unset_tid", &TidInterface::on_unset_tid_, this);
+	this->stopic_ = "rostid_ros2cnbi";
+	this->ptopic_ = "rostid_cnbi2ros";
+
+	this->tobiid_ = new ClTobiId(this->GetMode());
+
+	this->sub_ = this->nh_.subscribe(this->stopic_, 1, &TidInterface::on_received_ros2tid, this);
+	this->pub_ = this->nh_.advertise<cnbiros_tobi_msgs::TidMessage>(this->ptopic_, 1);
 }
 
 TidInterface::~TidInterface(void) {
-	delete this->pubset_;
-	delete this->subset_;
-	delete this->tidclset_;
+	this->Detach();
+	delete tobiid_;
 }
 
-bool TidInterface::Attach(const std::string& pipe) {
+bool TidInterface::Attach(void) {
 
-	std::shared_ptr<ClTobiId> ptid = nullptr;
-	bool retcod    = false;
-
-	// Remove ClTobiId (if already exists)
-	if(this->tidclset_->Remove(pipe)) {
-		ROS_WARN("Removed previous connection to cnbi loop on pipe %s", pipe.c_str());
-	}
+	bool retcode = false;
+	if(this->IsConnected())
+		retcode = this->tobiid_->Attach(this->pipe_);
 	
-	// Add new ClTobiId
-	retcod = this->tidclset_->Add(pipe, ClTobiId::SetGet);
-
-	if(retcod == false) {
-		ROS_ERROR("Cannot add a new connection to cnbi loop on pipe %s: already exists", pipe.c_str());
-		return false;
-	} else {
-		ROS_INFO("Added new connection to cnbi loop on pipe %s", pipe.c_str());
-	}
-	
-	// Retrieve pointer to the ClTobiId added and try to attach
-	if(this->tidclset_->Get(pipe, ptid))
-		retcod = ptid->Attach(pipe);
-
-	if (retcod == true)
-		ROS_INFO("Connection to cnbi loop attached on pipe: %s", pipe.c_str());
-
-	return retcod;
+	return retcode;
 }
 
+bool TidInterface::Detach(void) {
+	bool retcode = false;
+	if(this->IsConnected())
+		retcode = this->tobiid_->Detach();
+	
+	return retcode;
+}
+/*
 bool TidInterface::on_set_tid_(cnbiros_bci::SetTid::Request& req,
 								cnbiros_bci::SetTid::Response& res) {
 
@@ -147,7 +124,7 @@ void TidInterface::callback_ros2tid(const cnbiros_tobi_msgs::TidMessage& rosIdm)
 	}
 
 }
-
+*/
 	}
 }
 
