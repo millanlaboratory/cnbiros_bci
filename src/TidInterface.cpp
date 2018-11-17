@@ -6,7 +6,7 @@
 namespace cnbiros {
 	namespace bci {
 
-TidInterface::TidInterface(void) : TobiInterface() {
+TidInterface::TidInterface(void) : p_nh_("~") {
 
 	this->stopic_ = "rostid_ros2cnbi";
 	this->ptopic_ = "rostid_cnbi2ros";
@@ -15,11 +15,39 @@ TidInterface::TidInterface(void) : TobiInterface() {
 
 	this->sub_ = this->nh_.subscribe(this->stopic_, 1, &TidInterface::on_received_ros2tid, this);
 	this->pub_ = this->nh_.advertise<cnbiros_tobi_msgs::TidMessage>(this->ptopic_, 1);
+
+	this->nname_ = ros::this_node::getName();
 }
 
 TidInterface::~TidInterface(void) {
 	this->Detach();
 	delete tobiid_;
+}
+
+bool TidInterface::configure(void) {
+
+	bool retcode = true;
+	
+	// Getting parameters
+	this->p_nh_.getParam("loopip", this->loop_ip_);
+	this->p_nh_.getParam("reconnect", this->rtime_);
+	this->p_nh_.getParam("pipe", this->pipe_);
+	this->p_nh_.getParam("mode", this->nmode_);
+
+	// Set interface mode
+	if(this->SetMode(this->nmode_) == false) {
+		ROS_ERROR("[%s] - Unknown interface mode provided (%s). Aborting.", 
+				  this->nname_.c_str(), this->nmode_.c_str());
+		retcode = false;
+	}
+
+	// Check if the pipe is provided
+	if(this->pipe_.empty() == true) {
+		ROS_ERROR("[%s] - No cnbi pipe is provided. Aborting.", this->nname_.c_str());
+		retcode = false;
+	}
+
+	return retcode;
 }
 
 bool TidInterface::Attach(void) {
@@ -38,6 +66,35 @@ bool TidInterface::Detach(void) {
 	
 	return retcode;
 }
+
+void TidInterface::on_received_ros2tid(const cnbiros_tobi_msgs::TidMessage& msg) {
+	ROS_INFO("[%s] - Received TiD message on topic: %s", this->nname_.c_str(), this->stopic_.c_str());
+}
+
+bool TidInterface::Run(void) {
+	
+	ros::Rate r(20);
+
+	// Configuration
+	if(this->configure() == false) {
+		ROS_ERROR("[%s] - Node configuration failed", this->nname_.c_str());
+		return false;
+	}
+
+	// Connection to cnbi loop
+	if(this->Connect() == false) {
+		ROS_ERROR("[%s] - Cannot connect to cnbi loop", this->nname_.c_str());
+		return false;
+	}
+
+	while(this->nh_.ok()) {
+
+
+		ros::spinOnce();
+		r.sleep();
+	}
+}
+
 /*
 bool TidInterface::on_set_tid_(cnbiros_bci::SetTid::Request& req,
 								cnbiros_bci::SetTid::Response& res) {

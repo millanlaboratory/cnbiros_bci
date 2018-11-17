@@ -1,0 +1,10 @@
+<launch>
+	<!-- Arguments declaration -->
+	<arg name="nameserver"  default=""/>
+	<arg name="tid_pipes"   default=""/>
+
+	<rosparam param="nameserver"  subst_value="True">$(arg  nameserver)</rosparam>
+	<rosparam param="tid_pipes"  subst_value="True">$(arg tid_pipes)</rosparam>
+	<node pkg="cnbiros_bci" type="rostid" name="rostid" output="screen" />
+
+</launch>

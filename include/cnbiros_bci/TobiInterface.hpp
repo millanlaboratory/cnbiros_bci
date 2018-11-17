@@ -10,27 +10,20 @@ namespace cnbiros {
 class TobiInterface {
 	public:
 		TobiInterface(void);
+		TobiInterface(const std::string& loopip, float rtime);
 		virtual ~TobiInterface(void);
-
-		virtual bool configure(void);
 
 		bool Connect(void);
 		void Disconnect(void);
-
-		virtual bool Attach(void) {};
-		virtual bool Detach(void) {};
-
-		virtual void Run(void) = 0;
-
 		bool IsConnected(void);
-		bool IsConfigured(void);
-		bool IsAttached(void);
 
 		int GetMode(void);
 		std::string GetModeName(void);
 
 		bool SetMode(const std::string& mode);
 		bool SetMode(int mode);
+		
+		virtual bool Run(void) = 0;
 
 	public:
 		static const int Undefined	= -1;
@@ -39,19 +32,10 @@ class TobiInterface {
 		static const int SetGet		=  2;
 
 	protected:
-		ros::NodeHandle	nh_;
-		ros::NodeHandle	p_nh_;
-
-		std::string		pipe_;
+		float			rtime_;
+		int				mode_;
 		std::string		nmode_;
-	
-	private:
-		int		mode_;
-		bool	do_reconnect_;
-		float	rtime_;
-		bool	is_configured_;
-		bool	is_attached_;
-		std::string	loop_ip_;
+		std::string		loop_ip_;
 
 };
 

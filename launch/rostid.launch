@@ -1,10 +1,13 @@
 <launch>
-	<!-- Arguments declaration -->
-	<arg name="nameserver"  default=""/>
-	<arg name="tid_pipes"   default=""/>
+	<arg name="loopip" default="127.0.0.1:8123"/> 
+	<arg name="mode" />
+	<arg name="pipe" />
+	<arg name="reconnect" default="5.0" />
 
-	<rosparam param="nameserver"  subst_value="True">$(arg  nameserver)</rosparam>
-	<rosparam param="tid_pipes"  subst_value="True">$(arg tid_pipes)</rosparam>
-	<node pkg="cnbiros_bci" type="rostid" name="rostid" output="screen" />
-
+	<node pkg="cnbiros_bci" type="rostid" name="rostid" output="screen">
+		<rosparam param="loopip"  subst_value="True">$(arg loopip)</rosparam>
+		<rosparam param="pipe"  subst_value="True">$(arg pipe)</rosparam>
+		<rosparam param="mode"  subst_value="True">$(arg mode)</rosparam>
+		<rosparam param="reconnect"  subst_value="True">$(arg reconnect)</rosparam>
+	</node>
 </launch>

@@ -18,20 +18,27 @@ class TidInterface : public TobiInterface {
 		TidInterface(void);
 		virtual ~TidInterface(void);
 
+		bool configure(void);
+
 		bool Attach(void);
 		bool Detach(void);
 
-		void Run(void) {};
+		bool Run(void);
 
 	private:
 		void on_received_ros2tid(const cnbiros_tobi_msgs::TidMessage& msg);
 
 	private:
-		ClTobiId*		tobiid_ = nullptr;
+		ros::NodeHandle	nh_;
+		ros::NodeHandle	p_nh_;
+		std::string		nname_;
 		ros::Subscriber sub_;
 		ros::Publisher  pub_;
 		std::string		stopic_;
 		std::string		ptopic_;
+		
+		ClTobiId*		tobiid_ = nullptr;
+		std::string		pipe_;
 
 
 
