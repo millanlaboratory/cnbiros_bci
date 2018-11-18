@@ -11,7 +11,6 @@ TidInterface::TidInterface(void) : p_nh_("~") {
 	this->stopic_ = "rostid_ros2cnbi";
 	this->ptopic_ = "rostid_cnbi2ros";
 
-	this->tobiid_ = new ClTobiId(this->GetMode());
 
 	this->sub_ = this->nh_.subscribe(this->stopic_, 1, &TidInterface::on_received_ros2tid, this);
 	this->pub_ = this->nh_.advertise<cnbiros_tobi_msgs::TidMessage>(this->ptopic_, 1);
@@ -47,33 +46,61 @@ bool TidInterface::configure(void) {
 		retcode = false;
 	}
 
+	// Instantiate cltobiid with the correct mode
+	this->tobiid_  = new ClTobiId(this->GetMode());
+
 	return retcode;
 }
 
 bool TidInterface::Attach(void) {
 
-	bool retcode = false;
-	if(this->IsConnected())
-		retcode = this->tobiid_->Attach(this->pipe_);
-	
-	return retcode;
+	if(this->IsAttached())
+		return true;
+		
+	if(this->tobiid_->Attach(this->pipe_)) {
+		ROS_INFO("[%s] - Attached to %s pipe as %s", 
+				 this->nname_.c_str(), this->pipe_.c_str(),
+				 this->GetModeName().c_str());
+	}
+
+	return this->IsAttached();
 }
 
 bool TidInterface::Detach(void) {
 	bool retcode = false;
-	if(this->IsConnected())
-		retcode = this->tobiid_->Detach();
+
+	if(this->IsAttached() == false)
+		return true;
+		
+	if(this->tobiid_->Detach())
+		ROS_WARN("[%s] - Detached from %s pipe", this->nname_.c_str(), this->pipe_.c_str());
 	
-	return retcode;
+	return !(this->IsAttached());
+}
+
+bool TidInterface::IsAttached(void) {
+
+	bool ret = false;
+	if(this->tobiid_ != nullptr)
+		ret = this->tobiid_->IsAttached();
+
+	return ret;
 }
 
 void TidInterface::on_received_ros2tid(const cnbiros_tobi_msgs::TidMessage& msg) {
-	ROS_INFO("[%s] - Received TiD message on topic: %s", this->nname_.c_str(), this->stopic_.c_str());
+	ROS_DEBUG("[%s] - Received TiD message on topic: %s", this->nname_.c_str(), this->stopic_.c_str());
+	this->fromRosMsg_ = msg;
+	this->has_ros_message_ = true;
 }
 
 bool TidInterface::Run(void) {
-	
-	ros::Rate r(20);
+
+	IDMessage						toLoopMsg;
+	cnbiros_tobi_msgs::TidMessage	toRosMsg;
+	IDSerializerRapid				sloop(&(this->fromLoopMsg_));
+	IDSerializerRapid				sros(&(toLoopMsg));
+
+	ros::Rate r(50);
 
 	// Configuration
 	if(this->configure() == false) {
@@ -87,101 +114,33 @@ bool TidInterface::Run(void) {
 		return false;
 	}
 
+	// Main loop
 	while(this->nh_.ok()) {
 
+		// Attaching to cnbi loop
+		if(this->Attach() == false) {
+			ROS_ERROR_THROTTLE(5.0f, "[%s] - Cannot attach to %s pipe", this->nname_.c_str(), this->pipe_.c_str());
+		} 
 
-		ros::spinOnce();
-		r.sleep();
-	}
-}
-
-/*
-bool TidInterface::on_set_tid_(cnbiros_bci::SetTid::Request& req,
-								cnbiros_bci::SetTid::Response& res) {
-
-	ROS_INFO("Requested new connection to cnbi loop on pipe %s", req.pipe.c_str());
-	res.result = this->Attach(req.pipe);
-
-	return res.result;
-}
-
-bool TidInterface::on_unset_tid_(cnbiros_bci::UnSetTid::Request& req,
-								  cnbiros_bci::UnSetTid::Response& res) {
-
-	res.result = true;
-	ROS_INFO("Requested to remove connection on pipe %s", req.pipe.c_str());
-	
-	if(this->tidclset_->Remove(req.pipe)) {
-		ROS_INFO("Removed connection to cnbi loop on pipe %s", req.pipe.c_str());
-	} else {
-		ROS_WARN("Cannot remove connection on pipe %s, it does not exist", req.pipe.c_str());
-		res.result = false;
-	}
-	
-	return res.result;
-}
-
-void TidInterface::Run(void) {
-
-	IDMessage 		  		cnbiIdm;
-	IDSerializerRapid 		cnbiIds(&cnbiIdm);
-	TidTools 		  		tidtool;
-	cnbiros_tobi_msgs::TidMessage rosIdm;
-
-	ros::Rate r(50);
-	while(this->rosnode_->ok()) {
-
-		for(auto it = this->tidclset_->Begin(); it != this->tidclset_->End(); ++it) {
-			
-			if(it->second->GetMessage(&cnbiIds) == true) {
-				rosIdm = tidtool.GetMessage(cnbiIdm, it->first);
-				this->pubset_->Publish(CNBIROS_BCI_TID_CNBI2ROS, rosIdm);
-			}
+		// Getting id message from loop
+		if(this->IsAttached() && this->tobiid_->GetMessage(&sloop) == true) {
+			ROS_DEBUG("[%s] - Received TiD message from loop", this->nname_.c_str());
+			toRosMsg = TidTools::ToRos(this->fromLoopMsg_, this->pipe_);
+			this->pub_.publish(toRosMsg);
 		}
-	
-		r.sleep();
+
+		// Getting id message from ros
+		if(this->IsAttached() && this->has_ros_message_ == true) {
+			toLoopMsg = TidTools::ToTobi(this->fromRosMsg_);
+			this->tobiid_->SetMessage(&sros);
+			this->has_ros_message_ = false;
+		}
+
 		ros::spinOnce();
+		r.sleep();
 	}
 }
 
-bool TidInterface::Detach(const std::string& pipe) {
-
-	std::shared_ptr<ClTobiId> ptid = nullptr;
-	bool result;
-	if(this->tidclset_->Get(pipe, ptid))
-		result = ptid->Detach();
-
-	return result;
-}
-
-
-void TidInterface::callback_ros2tid(const cnbiros_tobi_msgs::TidMessage& rosIdm) {
-
-	std::shared_ptr<ClTobiId>   ptid;
-	bool 		retcod = false;
-
-	IDMessage		  		cnbiIdm;
-	IDSerializerRapid 		cnbiIds(&cnbiIdm);
-	TidTools 				tidtool;
-
-	// Convert ROS message to TidMessage
-	cnbiIdm = tidtool.GetMessage(rosIdm);
-
-	// Check if the corresponding ClTobiId exists and is attached
-	if(this->tidclset_->Get(rosIdm.pipe, ptid)) {
-		if(ptid->IsAttached()) {
-			ptid->SetMessage(&cnbiIds);
-			retcod = true;
-		} 		
-	}
-	
-	if(retcod == false) {
-		ROS_ERROR("Message received from ROS to CNBILoop. " 
-			      "However, no connection to %s has been found.", rosIdm.pipe.c_str());	
-	}
-
-}
-*/
 	}
 }
 

@@ -3,7 +3,6 @@
 
 #include <tobiid/IDMessage.hpp>
 #include "cnbiros_tobi_msgs/TidMessage.h"
-#include "cnbiros_bci/Flags.hpp"
 
 namespace cnbiros {
 	namespace bci {
@@ -40,7 +39,7 @@ class TidTools {
 		 * \param[out] 	idm 	Resulting IDMessage
 		 *
 		 */
-		IDMessage GetMessage(const cnbiros_tobi_msgs::TidMessage& idmros);
+		static IDMessage ToTobi(const cnbiros_tobi_msgs::TidMessage& idmros);
 		
 		/*! \brief Method to get the ID message in cnbiros_bci::TidMessage
 		 * format
@@ -51,7 +50,7 @@ class TidTools {
 		 * \param[out] 	msg 	Resulting ROS message
 		 *
 		 */
-		cnbiros_tobi_msgs::TidMessage GetMessage(const IDMessage& idcnbi, const std::string& pipe);
+		static cnbiros_tobi_msgs::TidMessage ToRos(const IDMessage& idcnbi, const std::string& pipe);
 
 
 };

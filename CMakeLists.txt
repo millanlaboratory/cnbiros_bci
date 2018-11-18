@@ -58,6 +58,7 @@ catkin_package(
 add_library(cnbiros_bci
 			src/TobiInterface.cpp
 			src/TidInterface.cpp
+			src/TidTools.cpp
 			src/rostid.cpp
 			)
 add_dependencies(cnbiros_bci cnbiros_bci_generate_messages_cpp ${catkin_EXPORTED_TARGETS})

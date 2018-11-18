@@ -10,7 +10,7 @@ TidTools::TidTools(void) {}
 
 TidTools::~TidTools(void) {}
 
-IDMessage TidTools::GetMessage(const cnbiros_tobi_msgs::TidMessage& idmros) {
+IDMessage TidTools::ToTobi(const cnbiros_tobi_msgs::TidMessage& idmros) {
 
 	IDMessage idmcnbi;
 
@@ -24,13 +24,13 @@ IDMessage TidTools::GetMessage(const cnbiros_tobi_msgs::TidMessage& idmros) {
 	return idmcnbi;
 }
 
-cnbiros_tobi_msgs::TidMessage TidTools::GetMessage(const IDMessage& idmcnbi, const std::string& pipe) {
+cnbiros_tobi_msgs::TidMessage TidTools::ToRos(const IDMessage& idmcnbi, const std::string& pipe) {
 
 	cnbiros_tobi_msgs::TidMessage idmros;
 
 	idmros.header.stamp 	= ros::Time::now();
-	idmros.header.frame_id  = CNBIROS_BCI_TID_FRAMEID;
-	idmros.version  		= CNBIROS_BCI_TID_VERSION;
+	idmros.header.frame_id  = "base_link";
+	idmros.version  		= "1.0.0";
 	idmros.family 			= idmcnbi.GetFamilyType();
 	idmros.description 		= idmcnbi.GetDescription();
 	idmros.event 			= idmcnbi.GetEvent();

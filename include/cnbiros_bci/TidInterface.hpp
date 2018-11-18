@@ -6,7 +6,7 @@
 #include <cnbiloop/ClTobiId.hpp>
 
 #include "cnbiros_bci/TobiInterface.hpp"
-//#include "cnbiros_bci/TidTools.hpp"
+#include "cnbiros_bci/TidTools.hpp"
 #include "cnbiros_tobi_msgs/TidMessage.h"
 
 namespace cnbiros {
@@ -22,6 +22,7 @@ class TidInterface : public TobiInterface {
 
 		bool Attach(void);
 		bool Detach(void);
+		bool IsAttached(void);
 
 		bool Run(void);
 
@@ -37,8 +38,12 @@ class TidInterface : public TobiInterface {
 		std::string		stopic_;
 		std::string		ptopic_;
 		
-		ClTobiId*		tobiid_ = nullptr;
-		std::string		pipe_;
+		std::string			pipe_;
+		ClTobiId*			tobiid_  = nullptr;
+
+		bool	has_ros_message_;
+		IDMessage						fromLoopMsg_;
+		cnbiros_tobi_msgs::TidMessage	fromRosMsg_;
 
 
 
