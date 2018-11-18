@@ -1,0 +1,13 @@
+<launch>
+	<arg name="loopip" default="127.0.0.1:8123"/> 
+	<arg name="mode" />
+	<arg name="pipe" />
+	<arg name="reconnect" default="5.0" />
+
+	<node pkg="cnbiros_bci" type="rostic" name="rostic" output="screen">
+		<rosparam param="loopip"  subst_value="True">$(arg loopip)</rosparam>
+		<rosparam param="pipe"  subst_value="True">$(arg pipe)</rosparam>
+		<rosparam param="mode"  subst_value="True">$(arg mode)</rosparam>
+		<rosparam param="reconnect"  subst_value="True">$(arg reconnect)</rosparam>
+	</node>
+</launch>

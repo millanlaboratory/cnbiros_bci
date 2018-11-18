@@ -45,11 +45,6 @@ class TidInterface : public TobiInterface {
 		IDMessage						fromLoopMsg_;
 		cnbiros_tobi_msgs::TidMessage	fromRosMsg_;
 
-
-
-
-
-
 };
 
 	}

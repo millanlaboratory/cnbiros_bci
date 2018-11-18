@@ -59,6 +59,8 @@ add_library(cnbiros_bci
 			src/TobiInterface.cpp
 			src/TidInterface.cpp
 			src/TidTools.cpp
+			src/TicInterface.cpp
+			src/TicTools.cpp
 			src/rostid.cpp
 			)
 add_dependencies(cnbiros_bci cnbiros_bci_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
@@ -70,6 +72,9 @@ target_link_libraries(cnbiros_bci ${catkin_LIBRARIES}
 
 add_executable(rostid src/rostid.cpp)
 target_link_libraries(rostid cnbiros_bci)
+
+add_executable(rostic src/rostic.cpp)
+target_link_libraries(rostic cnbiros_bci)
 
 #add_executable(rostic src/rostic.cpp)
 #target_link_libraries(rostic cnbiros_bci)

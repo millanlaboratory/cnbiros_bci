@@ -20,7 +20,8 @@ TidInterface::TidInterface(void) : p_nh_("~") {
 
 TidInterface::~TidInterface(void) {
 	this->Detach();
-	delete tobiid_;
+	if(this->tobiid_ != nullptr)
+		delete this->tobiid_;
 }
 
 bool TidInterface::configure(void) {
