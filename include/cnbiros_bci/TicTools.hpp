@@ -26,11 +26,12 @@ class TicTools {
 		static bool ToTobi(const cnbiros_tobi_msgs::TicMessage& mros, ICMessage& mtobi);
 		static cnbiros_tobi_msgs::TicMessage ToRos(const ICMessage& mtobi, const std::string& pipe);
 
+		static void Destroy(ICMessage& msg);
 		//float GetValue(const cnbiros_tobi_msgs::TicMessage& msg, const std::string& name, const std::string& label);
 
 	private:
-		std::vector<ICClass*> 	icclasses_;
-		ICClassifier* 		 	icclassifier_;
+		//std::vector<ICClass*> 	icclasses_;
+		//ICClassifier* 		 	icclassifier_;
 
 };
 

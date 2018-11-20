@@ -44,6 +44,7 @@ class TicInterface : public TobiInterface {
 		bool	has_ros_message_;
 		ICMessage						fromLoopMsg_;
 		cnbiros_tobi_msgs::TicMessage	fromRosMsg_;
+		ICMessage						toLoopMsg_;
 
 };
 

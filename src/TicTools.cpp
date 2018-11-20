@@ -43,6 +43,9 @@ bool TicTools::ToTobi(const cnbiros_tobi_msgs::TicMessage& mros, ICMessage& mtob
 		ret = false;
 	}
 
+	if(mtobi.classifiers.Empty() == true)
+		ret = false;
+	
 	return ret;
 }
 
@@ -83,6 +86,16 @@ cnbiros_tobi_msgs::TicMessage TicTools::ToRos(const ICMessage& mtobi, const std:
 	return mros;
 }
 
+void TicTools::Destroy(ICMessage& msg) {
+
+	if(msg.classifiers.Empty() == false) {
+		for(auto itcs = msg.classifiers.Begin(); itcs != msg.classifiers.End(); ++itcs) {
+			if(itcs->second->classes.Empty() == false)
+				itcs->second->classes.Destroy();
+		}
+		msg.classifiers.Destroy();
+	}
+}
 
 /*
 ICMessage TicTools::GetMessage(const cnbiros_tobi_msgs::TicMessage& icmros) {

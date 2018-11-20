@@ -19,6 +19,8 @@ TicInterface::TicInterface(void) : p_nh_("~") {
 }
 
 TicInterface::~TicInterface(void) {
+
+	TicTools::Destroy(this->toLoopMsg_);
 	this->Detach();
 	if(this->tobiic_ != nullptr)
 		delete this->tobiic_;
@@ -104,10 +106,10 @@ void TicInterface::on_received_ros2tic(const cnbiros_tobi_msgs::TicMessage& msg)
 
 bool TicInterface::Run(void) {
 
-	ICMessage						toLoopMsg;
+	//ICMessage						toLoopMsg;
 	cnbiros_tobi_msgs::TicMessage	toRosMsg;
 	ICSerializerRapid				sloop(&(this->fromLoopMsg_));
-	ICSerializerRapid				sros(&(toLoopMsg));
+	ICSerializerRapid				sros(&(this->toLoopMsg_));
 
 	TicTools	tictool;
 	ros::Rate r(50);
@@ -153,17 +155,14 @@ bool TicInterface::Run(void) {
 			if(this->IsAttached() && this->has_ros_message_ == true) {
 				ROS_INFO_ONCE("[%s] - Received TiC message from ros", this->nname_.c_str());
 
-				if(TicTools::ToTobi(this->fromRosMsg_, toLoopMsg) == true) {
+				if(TicTools::ToTobi(this->fromRosMsg_, this->toLoopMsg_) == true) {
 					try {
-						//toLoopMsg.Dump();
 						this->tobiic_->SetMessage(&sros);
 					} catch (TCException& e) {
 						printf("%s\n", e.GetInfo().c_str());
 					}
 				}
 				this->has_ros_message_ = false;
-
-				// MESSAGE IC TO BE DESTROYED/DELETED
 			}
 
 		}
@@ -175,6 +174,8 @@ bool TicInterface::Run(void) {
 		ros::spinOnce();
 		r.sleep();
 	}
+
+	TicTools::Destroy(this->toLoopMsg_);
 }
 /*
 void TicInterface::Run(void) {
