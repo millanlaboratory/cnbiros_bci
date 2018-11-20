@@ -10,14 +10,41 @@ TicTools::TicTools(void) {}
 
 TicTools::~TicTools(void) {}
 
-//ICMessage TicTools::ToTobi(const cnbiros_tobi_msgs::TicMessage& mros) {
-//
-//	ICMessage mtobi;
-//
-//
-//
-//
-//}
+bool TicTools::ToTobi(const cnbiros_tobi_msgs::TicMessage& mros, ICMessage& mtobi) {
+
+	ICClassifier* icc;
+	ICClass*	  icl;
+	bool ret = true;
+
+	try {
+		for(auto itcs = mros.classifiers.begin(); itcs != mros.classifiers.end(); ++itcs) {
+
+			if(mtobi.classifiers.Has(itcs->name) == false) {
+				icc = new ICClassifier(itcs->name, itcs->description, itcs->vtype, itcs->ltype);
+				icc = mtobi.classifiers.Add(icc);
+			} else {
+				icc = mtobi.classifiers.Get(itcs->name);
+			}
+
+			for(auto itcl = itcs->classes.begin(); itcl != itcs->classes.end(); ++itcl) {
+				
+				if(icc->classes.Has(itcl->label) == false) {
+					icl = new ICClass(itcl->label);
+					icl = icc->classes.Add(icl);
+				} else {
+					icl = icc->classes.Get(itcl->label);
+				}
+
+				icl = icl->SetValue(itcl->value);
+			}
+		}
+	} catch (TCException& e) {
+		ROS_ERROR("[%s] - ICMessage conversion error: %s", ros::this_node::getName().c_str(), e.GetInfo().c_str());
+		ret = false;
+	}
+
+	return ret;
+}
 
 cnbiros_tobi_msgs::TicMessage TicTools::ToRos(const ICMessage& mtobi, const std::string& pipe) {
 
@@ -55,6 +82,7 @@ cnbiros_tobi_msgs::TicMessage TicTools::ToRos(const ICMessage& mtobi, const std:
 
 	return mros;
 }
+
 
 /*
 ICMessage TicTools::GetMessage(const cnbiros_tobi_msgs::TicMessage& icmros) {

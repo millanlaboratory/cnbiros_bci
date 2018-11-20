@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <ros/ros.h>
+#include <tobicore/TCException.hpp>
 #include <tobiic/ICMessage.hpp>
 #include "cnbiros_tobi_msgs/TicClass.h"
 #include "cnbiros_tobi_msgs/TicClassifier.h"
@@ -22,6 +23,7 @@ class TicTools {
 		//std::vector<cnbiros_tobi_msgs::TicMessage> GetMessage(const ICMessage& iccnbi, const std::string& pipe);
 
 
+		static bool ToTobi(const cnbiros_tobi_msgs::TicMessage& mros, ICMessage& mtobi);
 		static cnbiros_tobi_msgs::TicMessage ToRos(const ICMessage& mtobi, const std::string& pipe);
 
 		//float GetValue(const cnbiros_tobi_msgs::TicMessage& msg, const std::string& name, const std::string& label);

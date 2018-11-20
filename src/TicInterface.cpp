@@ -151,15 +151,14 @@ bool TicInterface::Run(void) {
 		// Getting ic message from ros (SetOnly)
 		} else if(this->GetMode() == TobiInterface::SetOnly) {
 			if(this->IsAttached() && this->has_ros_message_ == true) {
-				ROS_INFO("[%s] - Received TiC message from ros", this->nname_.c_str());
+				ROS_INFO_ONCE("[%s] - Received TiC message from ros", this->nname_.c_str());
 
-				//try {
-				//	toLoopMsg = tictool.GetMessage(this->fromRosMsg_);
-				//	this->tobiic_->SetMessage(&sros);
-				//} catch (TCException& e) {
-				//	printf("%s\n", e.GetInfo().c_str());
-				//}
+				if(TicTools::ToTobi(this->fromRosMsg_, toLoopMsg) == true) {
+					this->tobiic_->SetMessage(&sros);
+				}
 				this->has_ros_message_ = false;
+
+				// MESSAGE IC TO BE DESTROYED/DELETED
 			}
 
 		}
