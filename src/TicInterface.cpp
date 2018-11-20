@@ -154,7 +154,12 @@ bool TicInterface::Run(void) {
 				ROS_INFO_ONCE("[%s] - Received TiC message from ros", this->nname_.c_str());
 
 				if(TicTools::ToTobi(this->fromRosMsg_, toLoopMsg) == true) {
-					this->tobiic_->SetMessage(&sros);
+					try {
+						//toLoopMsg.Dump();
+						this->tobiic_->SetMessage(&sros);
+					} catch (TCException& e) {
+						printf("%s\n", e.GetInfo().c_str());
+					}
 				}
 				this->has_ros_message_ = false;
 
