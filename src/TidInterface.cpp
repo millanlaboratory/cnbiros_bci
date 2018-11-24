@@ -96,10 +96,8 @@ void TidInterface::on_received_ros2tid(const cnbiros_tobi_msgs::TidMessage& msg)
 
 bool TidInterface::Run(void) {
 
-	IDMessage						toLoopMsg;
-	cnbiros_tobi_msgs::TidMessage	toRosMsg;
 	IDSerializerRapid				sloop(&(this->fromLoopMsg_));
-	IDSerializerRapid				sros(&(toLoopMsg));
+	IDSerializerRapid				sros(&(this->toLoopMsg_));
 
 	ros::Rate r(50);
 
@@ -126,14 +124,14 @@ bool TidInterface::Run(void) {
 		// Getting id message from loop
 		if(this->IsAttached() && this->tobiid_->GetMessage(&sloop) == true) {
 			ROS_DEBUG("[%s] - Received TiD message from loop", this->nname_.c_str());
-			toRosMsg = TidTools::ToRos(this->fromLoopMsg_, this->pipe_);
-			this->pub_.publish(toRosMsg);
+			if(TidTools::ToRos(this->fromLoopMsg_, this->pipe_, this->toRosMsg_)) 
+				this->pub_.publish(this->toRosMsg_);
 		}
 
 		// Getting id message from ros
 		if(this->IsAttached() && this->has_ros_message_ == true) {
-			toLoopMsg = TidTools::ToTobi(this->fromRosMsg_);
-			this->tobiid_->SetMessage(&sros);
+			if(TidTools::ToTobi(this->fromRosMsg_, this->toLoopMsg_))
+				this->tobiid_->SetMessage(&sros);
 			this->has_ros_message_ = false;
 		}
 

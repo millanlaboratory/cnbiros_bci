@@ -10,7 +10,8 @@ TicInterface::TicInterface(void) : p_nh_("~") {
 
 	this->stopic_ = "rostic_ros2cnbi";
 	this->ptopic_ = "rostic_cnbi2ros";
-
+	this->tobiic_ = nullptr;
+	this->has_ros_message_ = false;
 
 	this->sub_ = this->nh_.subscribe(this->stopic_, 1, &TicInterface::on_received_ros2tic, this);
 	this->pub_ = this->nh_.advertise<cnbiros_tobi_msgs::TicMessage>(this->ptopic_, 1);
@@ -20,10 +21,25 @@ TicInterface::TicInterface(void) : p_nh_("~") {
 
 TicInterface::~TicInterface(void) {
 
-	TicTools::Destroy(this->toLoopMsg_);
 	this->Detach();
+	TicTools::Destroy(this->toLoopMsg_);
+	this->destroy_tobiic();
+}
+
+void TicInterface::init_tobiic(void) {
+
+	this->destroy_tobiic();
+
+	if(this->IsAttached() == true)
+		this->Detach();
+
+	this->tobiic_ = new ClTobiIc(this->GetMode());
+}
+
+void TicInterface::destroy_tobiic(void) {
 	if(this->tobiic_ != nullptr)
 		delete this->tobiic_;
+	this->tobiic_ = nullptr;
 }
 
 bool TicInterface::configure(void) {
@@ -57,7 +73,7 @@ bool TicInterface::configure(void) {
 	}
 
 	// Instantiate cltobiic with the correct mode
-	this->tobiic_  = new ClTobiIc(this->GetMode());
+	this->init_tobiic();
 
 	return retcode;
 }
@@ -76,6 +92,15 @@ bool TicInterface::Attach(void) {
 	return this->IsAttached();
 }
 
+bool TicInterface::ReAttach(void) {
+	
+	if(this->IsAttached() == true)
+		return true;
+
+	this->destroy_tobiic();
+	this->init_tobiic();
+	return this->Attach();
+}
 
 bool TicInterface::Detach(void) {
 	bool retcode = false;
@@ -101,17 +126,16 @@ bool TicInterface::IsAttached(void) {
 void TicInterface::on_received_ros2tic(const cnbiros_tobi_msgs::TicMessage& msg) {
 	ROS_DEBUG("[%s] - Received TiC message on topic: %s", this->nname_.c_str(), this->stopic_.c_str());
 	this->fromRosMsg_ = msg;
-	this->has_ros_message_ = true;
+	
+	if(TicTools::Empty(this->fromRosMsg_) == false)
+		this->has_ros_message_ = true;
 }
 
 bool TicInterface::Run(void) {
 
-	//ICMessage						toLoopMsg;
-	cnbiros_tobi_msgs::TicMessage	toRosMsg;
 	ICSerializerRapid				sloop(&(this->fromLoopMsg_));
 	ICSerializerRapid				sros(&(this->toLoopMsg_));
 
-	TicTools	tictool;
 	ros::Rate r(50);
 
 	// Configuration
@@ -130,7 +154,7 @@ bool TicInterface::Run(void) {
 	while(this->nh_.ok()) {
 
 		// Attaching to cnbi loop
-		if(this->Attach() == false) {
+		if(this->ReAttach() == false) {
 			ROS_ERROR_THROTTLE(5.0f, "[%s] - Cannot attach to %s pipe", this->nname_.c_str(), this->pipe_.c_str());
 		} 
 
@@ -141,13 +165,13 @@ bool TicInterface::Run(void) {
 					ROS_WARN("[%s] - Connection on pipe %s detached. Try to attach again..", 
 							      this->nname_.c_str(), this->pipe_.c_str());
 					break;
-				case ClTobiIc::NoMessage:
-					break;
 				case ClTobiIc::HasMessage:
 					ROS_INFO_ONCE("[%s] - First message received from pipe %s", 
 							      this->nname_.c_str(), this->pipe_.c_str());
-					toRosMsg = TicTools::ToRos(this->fromLoopMsg_, this->pipe_);
-					this->pub_.publish(toRosMsg);
+					if(TicTools::ToRos(this->fromLoopMsg_, this->pipe_, this->toRosMsg_) == true)
+						this->pub_.publish(this->toRosMsg_);
+					break;
+				case ClTobiIc::NoMessage:
 					break;
 			}
 		// Getting ic message from ros (SetOnly)
@@ -155,21 +179,13 @@ bool TicInterface::Run(void) {
 			if(this->IsAttached() && this->has_ros_message_ == true) {
 				ROS_INFO_ONCE("[%s] - Received TiC message from ros", this->nname_.c_str());
 
-				if(TicTools::ToTobi(this->fromRosMsg_, this->toLoopMsg_) == true) {
-					try {
-						this->tobiic_->SetMessage(&sros);
-					} catch (TCException& e) {
-						printf("%s\n", e.GetInfo().c_str());
-					}
-				}
+				if(TicTools::ToTobi(this->fromRosMsg_, this->toLoopMsg_) == true)
+					this->tobiic_->SetMessage(&sros);
+				
 				this->has_ros_message_ = false;
 			}
 
 		}
-
-
-
-		// Getting id message from ros
 
 		ros::spinOnce();
 		r.sleep();
@@ -177,101 +193,6 @@ bool TicInterface::Run(void) {
 
 	TicTools::Destroy(this->toLoopMsg_);
 }
-/*
-void TicInterface::Run(void) {
-
-	//ICMessage 		  		cnbiIcm;
-	//ICSerializerRapid 		cnbiIcs(&cnbiIcm);
-	TicTools 		  		tictool;
-	std::vector<cnbiros_tobi_msgs::TicMessage> rosIcmList;
-	ros::Rate r(50);
-	bool newmessage = false;
-	while(this->rosnode_->ok()) {
-
-		for(auto it = this->ticclset_->Begin(); it != this->ticclset_->End(); ++it) {
-			if(it->second->GetMode() == ClTobiIc::GetOnly) {
-		
-				switch(it->second->GetMessage(this->cnbiics_)) {
-					case ClTobiIc::Detached:
-						ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
-						if(it->second->Attach(it->first)) {
-							ROS_INFO("Connection on pipe %s attached", it->first.c_str());
-						}
-						break;
-					case ClTobiIc::NoMessage:
-						break;
-
-					case ClTobiIc::HasMessage:
-						ROS_INFO_ONCE("First message received from pipe %s", it->first.c_str());
-						if(this->cnbiicm_->GetBlockIdx() >= this->syncidx_) {
-							rosIcmList = tictool.GetMessage(*(this->cnbiicm_), it->first);
-							for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
-								this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
-							}
-						}
-
-				}
-
-
-				////if(it->second->WaitMessage(&cnbiIcs) == ClTobiIc::HasMessage) {
-				//if(it->second->GetMessage(this->cnbiics_) == ClTobiIc::HasMessage) {
-				//	ROS_INFO_ONCE("First message received from pipe %s", it->first.c_str());
-				//	//rosIcmList = tictool.GetMessage(cnbiIcm, it->first);
-				//	rosIcmList = tictool.GetMessage(*(this->cnbiicm_), it->first);
-				//	for(auto itm = rosIcmList.begin(); itm != rosIcmList.end(); ++itm) {
-				//		this->pubset_->Publish(CNBIROS_BCI_TIC_CNBI2ROS, (*itm));
-				//	}
-
-				////} else if(it->second->GetMessage(&cnbiIcs) == ClTobiIc::Detached) {
-				//} else if(it->second->GetMessage(this->cnbiics_) == ClTobiIc::Detached) {
-				//	ROS_WARN("Connection on pipe %s detached. Try to attach again..", it->first.c_str());
-				//	if(it->second->Attach(it->first)) {
-				//		ROS_INFO("Connection on pipe %s attached", it->first.c_str());
-				//	}
-				//}
-			}
-		}
-	
-		r.sleep();
-		ros::spinOnce();
-	}
-}
-
-
-
-void TicInterface::callback_ros2tic(const cnbiros_tobi_msgs::TicMessage& rosIcm) {
-
-	std::shared_ptr<ClTobiIc>   ptic;
-	bool 		retcod = false;
-
-	ICMessage		  		cnbiIcm;
-	ICSerializerRapid 	cnbiIcs(&cnbiIcm);
-	TicTools 				tictool;
-
-	// Convert ROS message to TicMessage
-	cnbiIcm = tictool.GetMessage(rosIcm);
-
-	// Check if the corresponding ClTobiIc exists and is attached
-	if(this->ticclset_->Get(rosIcm.pipe, ptic)) {
-		if(ptic->IsAttached()) {
-			ROS_INFO_ONCE("First message streamed from ROS to pipe %s", rosIcm.pipe.c_str());
-			ptic->SetMessage(&cnbiIcs);
-			retcod = true;
-		} else {	
-			ROS_WARN_THROTTLE(5, "Connection on pipe %s detached. Try to attach again..", rosIcm.pipe.c_str());
-			if(ptic->Attach(rosIcm.pipe)) {
-				ROS_INFO("Connection on pipe %s attached", rosIcm.pipe.c_str());
-			}
-		}
-	}
-	
-	if(retcod == false) {
-		ROS_ERROR_THROTTLE(10, "Message received from ROS to CNBILoop. " 
-			      "However, no connection to pipe %s has been found.", rosIcm.pipe.c_str());	
-	}
-
-}
-*/
 
 	}
 }

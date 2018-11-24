@@ -1,6 +1,8 @@
 #ifndef CNBIROS_BCI_TIDTOOLS_HPP
 #define CNBIROS_BCI_TIDTOOLS_HPP
 
+#include <ros/ros.h>
+#include <tobicore/TCException.hpp>
 #include <tobiid/IDMessage.hpp>
 #include "cnbiros_tobi_msgs/TidMessage.h"
 
@@ -36,10 +38,10 @@ class TidTools {
 		 * This methods convert the IDMessage (CNBI loop ecosystem)	into a
 		 * cnbiros_bci::TidMessage
 		 *
-		 * \param[out] 	idm 	Resulting IDMessage
+		 * \param[out] Conversion result
 		 *
 		 */
-		static IDMessage ToTobi(const cnbiros_tobi_msgs::TidMessage& idmros);
+		static bool ToTobi(const cnbiros_tobi_msgs::TidMessage& mros, IDMessage& mtobi);
 		
 		/*! \brief Method to get the ID message in cnbiros_bci::TidMessage
 		 * format
@@ -47,10 +49,10 @@ class TidTools {
 		 * This methods convert the cnbiros_bci::TidMessage into IDMessage (CNBI
 		 * loop ecosystem)		 
 		 * 
-		 * \param[out] 	msg 	Resulting ROS message
+		 * \param[out]	Conversion result
 		 *
 		 */
-		static cnbiros_tobi_msgs::TidMessage ToRos(const IDMessage& idcnbi, const std::string& pipe);
+		static bool ToRos(const IDMessage& mtobi, const std::string& pipe, cnbiros_tobi_msgs::TidMessage& mros);
 
 
 };

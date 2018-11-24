@@ -10,33 +10,42 @@ TidTools::TidTools(void) {}
 
 TidTools::~TidTools(void) {}
 
-IDMessage TidTools::ToTobi(const cnbiros_tobi_msgs::TidMessage& idmros) {
+bool TidTools::ToTobi(const cnbiros_tobi_msgs::TidMessage& mros, IDMessage& mtobi) {
 
-	IDMessage idmcnbi;
-
+	bool ret = true;	
 	// Fill the IDMessage with the ros message fields. Since ors has not a frame
 	// block (as the cnbiloop), set the block id as unset.
-	idmcnbi.SetFamilyType(idmros.family);
-	idmcnbi.SetDescription(idmros.description);
-	idmcnbi.SetEvent(idmros.event);
-	idmcnbi.SetBlockIdx(TCBlock::BlockIdxUnset);
+	try {	
+		mtobi.SetFamilyType(mros.family);
+		mtobi.SetDescription(mros.description);
+		mtobi.SetEvent(mros.event);
+		mtobi.SetBlockIdx(TCBlock::BlockIdxUnset);
+	} catch (TCException& e) {
+		ROS_ERROR("[%s] - IDMessage conversion error: %s", ros::this_node::getName().c_str(), e.GetInfo().c_str());
+		ret = false;
+	}
 
-	return idmcnbi;
+	return ret;
 }
 
-cnbiros_tobi_msgs::TidMessage TidTools::ToRos(const IDMessage& idmcnbi, const std::string& pipe) {
+bool TidTools::ToRos(const IDMessage& mtobi, const std::string& pipe, cnbiros_tobi_msgs::TidMessage& mros) {
 
-	cnbiros_tobi_msgs::TidMessage idmros;
+	bool ret = true;
+	
+	try {
+		mros.header.stamp	 = ros::Time::now();
+		mros.header.frame_id = "base_link";
+		mros.version  		 = "1.0.0";
+		mros.family 		 = mtobi.GetFamilyType();
+		mros.description 	 = mtobi.GetDescription();
+		mros.event 			 = mtobi.GetEvent();
+		mros.pipe  			 = pipe;
+	} catch (std::runtime_error& e) {
+		ROS_ERROR("[%s] - ID ros message conversion erros: %s", ros::this_node::getName().c_str(), e.what());
+		ret = false;
+	}
 
-	idmros.header.stamp 	= ros::Time::now();
-	idmros.header.frame_id  = "base_link";
-	idmros.version  		= "1.0.0";
-	idmros.family 			= idmcnbi.GetFamilyType();
-	idmros.description 		= idmcnbi.GetDescription();
-	idmros.event 			= idmcnbi.GetEvent();
-	idmros.pipe  			= pipe;
-
-	return idmros;
+	return ret;
 	
 }
 

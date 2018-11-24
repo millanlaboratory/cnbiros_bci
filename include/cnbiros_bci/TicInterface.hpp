@@ -23,11 +23,16 @@ class TicInterface : public TobiInterface {
 		bool Attach(void);
 		bool Detach(void);
 		bool IsAttached(void);
+		bool ReAttach(void);
 
 		bool Run(void);
 
-	private:
+	protected:
 		void on_received_ros2tic(const cnbiros_tobi_msgs::TicMessage& msg);
+
+	private:
+		void init_tobiic(void);
+		void destroy_tobiic(void);
 
 	private:
 		ros::NodeHandle	nh_;
@@ -45,6 +50,7 @@ class TicInterface : public TobiInterface {
 		ICMessage						fromLoopMsg_;
 		cnbiros_tobi_msgs::TicMessage	fromRosMsg_;
 		ICMessage						toLoopMsg_;
+		cnbiros_tobi_msgs::TicMessage	toRosMsg_;
 
 };
 

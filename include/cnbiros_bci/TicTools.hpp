@@ -18,20 +18,13 @@ class TicTools {
 		TicTools(void);
 		~TicTools(void);
 
-		//ICMessage GetMessage(const cnbiros_tobi_msgs::TicMessage& icmros);
-		
-		//std::vector<cnbiros_tobi_msgs::TicMessage> GetMessage(const ICMessage& iccnbi, const std::string& pipe);
-
-
 		static bool ToTobi(const cnbiros_tobi_msgs::TicMessage& mros, ICMessage& mtobi);
-		static cnbiros_tobi_msgs::TicMessage ToRos(const ICMessage& mtobi, const std::string& pipe);
+		static bool ToRos(const ICMessage& mtobi, const std::string& pipe, cnbiros_tobi_msgs::TicMessage& mros);
 
 		static void Destroy(ICMessage& msg);
-		//float GetValue(const cnbiros_tobi_msgs::TicMessage& msg, const std::string& name, const std::string& label);
+		static bool Empty(ICMessage& msg);
+		static bool Empty(cnbiros_tobi_msgs::TicMessage& msg);
 
-	private:
-		//std::vector<ICClass*> 	icclasses_;
-		//ICClassifier* 		 	icclassifier_;
 
 };
 

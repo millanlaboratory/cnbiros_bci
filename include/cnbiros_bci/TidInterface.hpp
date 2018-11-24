@@ -44,6 +44,8 @@ class TidInterface : public TobiInterface {
 		bool	has_ros_message_;
 		IDMessage						fromLoopMsg_;
 		cnbiros_tobi_msgs::TidMessage	fromRosMsg_;
+		IDMessage						toLoopMsg_;
+		cnbiros_tobi_msgs::TidMessage	toRosMsg_;
 
 };
 
