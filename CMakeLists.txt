@@ -17,16 +17,6 @@ include_directories(${catkin_INCLUDE_DIRS}
 					${TOBIID_INCLUDE_DIRS} 
 					${TOBIIC_INCLUDE_DIRS} 
 					include)
-
-#add_service_files(
-#  FILES
-#  SetTid.srv
-#  UnSetTid.srv
-#  SetTic.srv
-#  UnSetTic.srv
-#  Sync.srv
-#)
-
 generate_messages(
 	DEPENDENCIES
 	std_msgs
@@ -75,34 +65,3 @@ target_link_libraries(rostid cnbiros_bci)
 
 add_executable(rostic src/rostic.cpp)
 target_link_libraries(rostic cnbiros_bci)
-
-#add_executable(rostic src/rostic.cpp)
-#target_link_libraries(rostic cnbiros_bci)
-#
-#add_executable(rossync src/rossync.cpp)
-#target_link_libraries(rossync cnbiros_bci)
-#
-#add_executable(rostic_sender src/rostic_sender.cpp)
-#target_link_libraries(rostic_sender cnbiros_bci)
-#
-#add_executable(rostid_sender src/rostid_sender.cpp)
-#target_link_libraries(rostid_sender cnbiros_bci)
-#
-#add_executable(tid_to_point src/tid_to_point.cpp)
-#target_link_libraries(tid_to_point ${PROJECT_NAME})
-#
-#add_executable(tid_to_cmdvel src/tid_to_cmdvel.cpp)
-#target_link_libraries(tid_to_cmdvel ${PROJECT_NAME})
-#
-#add_executable(example_cnbiloop examples/example_cnbiloop.cpp)
-#target_link_libraries(example_cnbiloop cnbiros_bci)
-#
-#add_executable(example_tidclset examples/example_tidclset.cpp)
-#target_link_libraries(example_tidclset cnbiros_bci)
-#
-#add_executable(example_tid examples/example_tid.cpp)
-#target_link_libraries(example_tid cnbiros_bci)
-#
-#add_executable(example_tic examples/example_tic.cpp)
-#target_link_libraries(example_tic cnbiros_bci)
-
