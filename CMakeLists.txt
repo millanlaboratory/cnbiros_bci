@@ -17,10 +17,6 @@ include_directories(${catkin_INCLUDE_DIRS}
 					${TOBIID_INCLUDE_DIRS} 
 					${TOBIIC_INCLUDE_DIRS} 
 					include)
-generate_messages(
-	DEPENDENCIES
-	std_msgs
-)
 
 catkin_package(
   INCLUDE_DIRS 
@@ -53,7 +49,7 @@ add_library(cnbiros_bci
 			src/TicTools.cpp
 			src/rostid.cpp
 			)
-add_dependencies(cnbiros_bci cnbiros_bci_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(cnbiros_bci ${catkin_EXPORTED_TARGETS})
 target_link_libraries(cnbiros_bci ${catkin_LIBRARIES} 
 								  ${CNBILOOP_LIBRARIES} 
 								  ${TOBICORE_LIBRARIES}
